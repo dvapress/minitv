@@ -1,23 +1,42 @@
 :root {
   color-scheme: dark;
-  --bg: #0b0809;
-  --bg-soft: #120d0f;
-  --surface: #171114;
-  --surface-2: #201719;
-  --border: rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.16);
-  --text: #f7f2f3;
-  --text-soft: #e4dcde;
-  --muted: #a79ca1;
-  --muted-dim: #7f7478;
-  --accent: #e53b3e;
-  --accent-bright: #ff5256;
-  --gold: #f6c453;
+  --bg: #16110e;
+  --bg-soft: #1d1612;
+  --surface: #241c18;
+  --surface-2: #2f241e;
+  --border: rgba(253, 248, 246, 0.11);
+  --border-strong: rgba(253, 248, 246, 0.2);
+  --text: #fdf8f6;
+  --text-soft: #f0e6e1;
+  --muted: #a8a29e;
+  --muted-dim: #8a827d;
+  --accent: #f97316;
+  --accent-bright: #fb923c;
+  --gold: #facc15;
+  --teal: #0d9488;
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 12px;
   --shell: 1180px;
   --header-h: 68px;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #fffbf7;
+  --bg-soft: #f7f0e8;
+  --surface: #ffffff;
+  --surface-2: #f4ebe2;
+  --border: rgba(28, 25, 23, 0.11);
+  --border-strong: rgba(28, 25, 23, 0.2);
+  --text: #1c1917;
+  --text-soft: #292524;
+  --muted: #57534e;
+  --muted-dim: #78716c;
+  --accent: #ea580c;
+  --accent-bright: #f97316;
+  --gold: #d97706;
+  --teal: #0d9488;
 }
 
 * {
@@ -33,8 +52,8 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(980px 520px at 82% -12%, rgba(229, 59, 62, 0.16), transparent 62%),
-    radial-gradient(760px 420px at 4% 6%, rgba(229, 59, 62, 0.07), transparent 66%),
+    radial-gradient(980px 520px at 82% -12%, rgba(249, 115, 22, 0.16), transparent 62%),
+    radial-gradient(760px 420px at 4% 6%, rgba(250, 204, 21, 0.08), transparent 66%),
     var(--bg);
   color: var(--text);
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -42,6 +61,66 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(980px 520px at 82% -12%, rgba(234, 88, 12, 0.1), transparent 62%),
+    radial-gradient(760px 420px at 4% 6%, rgba(13, 148, 136, 0.09), transparent 66%),
+    var(--bg);
+}
+
+:root[data-theme="light"] .site-header {
+  background: rgba(255, 251, 247, 0.92);
+  border-bottom-color: var(--border);
+}
+
+.ld-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+}
+.ld-brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #facc15 0%, #f97316 55%, #ea580c 100%);
+  color: #16110e;
+  font-weight: 900;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pref-btn {
+  height: 34px;
+  min-width: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.pref-btn:hover {
+  border-color: var(--accent);
+}
+:root[data-theme="light"] .eyebrow {
+  color: var(--teal);
 }
 
 img {

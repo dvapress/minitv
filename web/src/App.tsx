@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { fetchMarketing, fetchPreviewCatalog, Marketing, Plan, PreviewDrama } from "./api";
 import { ANDROID_APK, ANDROID_MIN } from "./downloads";
 import { SiteFooter, SiteHeader, WEB_APP_URL } from "./layout";
+import { PrefsProvider, usePrefs } from "./prefs";
 import PreviewPage from "./preview";
 import { parseRoute, Route, scrollToRoute } from "./routes";
 import { PosterImage, formatPlays } from "./ui";
@@ -10,21 +11,27 @@ import WatchPage from "./watch";
 
 type FeatureIcon = "swipe" | "coins" | "diamond";
 
-const features: { icon: FeatureIcon; title: string; body: string }[] = [
+const features: { icon: FeatureIcon; titleEn: string; titleZh: string; bodyEn: string; bodyZh: string }[] = [
   {
     icon: "swipe",
-    title: "Vertical swipe",
-    body: "Every episode is shot for the phone. Swipe up and the next one starts — no rotation, no waiting.",
+    titleEn: "Vertical swipe",
+    titleZh: "竖屏畅看",
+    bodyEn: "Every episode is up to 3 minutes, crafted for mobile and PC. Swipe up or click next — zero waiting.",
+    bodyZh: "每集最长 3 分钟，专为移动端与 PC 网页打造，随滑随看、即刻进入高能剧情。",
   },
   {
     icon: "coins",
-    title: "Coins",
-    body: "Watch free episodes every day, then spend coins to unlock the ones you cannot stop thinking about.",
+    titleEn: "First 2 eps free + Coins",
+    titleZh: "前 2 集免费 + 金币解锁",
+    bodyEn: "Watch the first 2 episodes of every series free, then spend coins to unlock the episodes you love.",
+    bodyZh: "全站剧集前 2 集免费试看，后续分集可使用金币灵活解锁，签到任务还能领金币。",
   },
   {
     icon: "diamond",
-    title: "Membership",
-    body: "Skip the coins. Members unlock the whole library, ad-free, in up to 1080p.",
+    titleEn: "Membership",
+    titleZh: "会员全站通看",
+    bodyEn: "Skip the coins. Members unlock the whole library, ad-free, in up to 1080p.",
+    bodyZh: "无需逐集花金币，会员畅享全站剧集无广告 1080p 高清播放。",
   },
 ];
 
@@ -60,39 +67,42 @@ function FeatureGlyph({ name }: { name: FeatureIcon }) {
 
 const faqs = [
   {
-    q: "Is MiniTV free?",
-    a: "Yes. Many episodes are free to watch. Locked episodes unlock with coins or a membership.",
+    qEn: "Is LeapDrama free?",
+    qZh: "LeapDrama 可以免费看吗？",
+    aEn: "Yes. The first 2 episodes of every drama are free to watch. Locked episodes unlock with coins or a membership.",
+    aZh: "可以。每部剧集前 2 集免费试看，单集不超过 3 分钟；后续分集可用金币或会员解锁。",
   },
   {
-    q: "Can I watch on the website?",
-    a: "Yes — the Free Preview page streams the first free episodes of our shows right in your browser, no account needed. Paid episodes and full series unlock in the app.",
+    qEn: "Can I watch on the website?",
+    qZh: "可以直接在网页上看吗？",
+    aEn: "Yes — both PC web and mobile H5 stream right in your browser, no native app install required.",
+    aZh: "可以，完整支持 PC 网页与移动端 H5，无需下载原生 App，打开浏览器即可畅看。",
   },
   {
-    q: "Where do I download the app?",
-    a: "The Android app is ready — tap Download APK in the Download section, then allow installs from your browser when Android asks. The iOS app is still coming soon; until then you can watch free episodes and the full web app right here in your browser.",
+    qEn: "How do coins work?",
+    qZh: "金币怎么获取和使用？",
+    aEn: "Earn coins from daily check-ins and rewards, then spend them to unlock locked episodes. Members skip coins entirely.",
+    aZh: "每日签到和任务均可领取金币，用于按集解锁；开通会员后全站免金币观看。",
   },
   {
-    q: "How do coins work?",
-    a: "Earn coins from daily check-ins and rewards, then spend them to unlock locked episodes. Members skip coins entirely.",
-  },
-  {
-    q: "Can I cancel anytime?",
-    a: "Yes. Cancel from Me → Subscription in the app. Your benefits stay active until the end of the billing period.",
+    qEn: "Can I cancel anytime?",
+    qZh: "会员可以随时取消吗？",
+    aEn: "Yes. Cancel from Me → Subscription. Your benefits stay active until the end of the billing period.",
+    aZh: "可以。在「我的 → 会员中心」随时取消续费，当期权益持续有效至周期结束。",
   },
 ];
 
-const planUnit: Record<string, string> = {
-  weekly: "week",
-  monthly: "month",
-  yearly: "year",
+const planUnit: Record<string, { en: string; zh: string }> = {
+  weekly: { en: "week", zh: "周" },
+  monthly: { en: "month", zh: "月" },
+  yearly: { en: "year", zh: "年" },
 };
 
 function HomePage() {
+  const { locale, t } = usePrefs();
   const [data, setData] = useState<Marketing | null>(null);
   const [error, setError] = useState("");
   const [teaser, setTeaser] = useState<PreviewDrama[]>([]);
-  // The store listings are not live yet: the badges stay, the click explains
-  // why and points people at the APK / browser build instead.
   const [storeNotice, setStoreNotice] = useState("");
   const noticeTimer = useRef<number | null>(null);
 
@@ -113,7 +123,7 @@ function HomePage() {
     setError("");
     fetchMarketing()
       .then(setData)
-      .catch(() => setError("Could not load MiniTV. Check the local API and retry."));
+      .catch(() => setError(t("Could not load LeapDrama. Check the API and retry.", "加载 LeapDrama 失败，请稍后重试。")));
   };
 
   useEffect(() => {
@@ -142,29 +152,31 @@ function HomePage() {
       <section id="home" className="hero">
         <div className="shell hero-inner">
           <div className="hero-copy">
-            <span className="eyebrow">Vertical drama · New episodes daily</span>
+            <span className="eyebrow">{t("Vertical drama · New episodes daily", "竖屏短剧漫剧 · 每日上新")}</span>
             <h1>
-              Vertical dramas, <em>one swipe away.</em>
+              {t("Vertical dramas,", "高能竖屏短剧，")} <em>{t("one swipe away.", "一滑即入戏。")}</em>
             </h1>
             <p className="lede">
-              Free episodes play right here on the web. Unlock the rest — and the whole
-              library — in the MiniTV app.
+              {t(
+                "Watch the first 2 episodes free right in your browser (PC & Mobile H5). Unlock the full library on LeapDrama.",
+                "PC 网页与移动端 H5 全适配，每部剧集前 2 集免费试看，在 LeapDrama 随时解锁全集。",
+              )}
             </p>
             <div className="hero-actions">
-              <a className="btn btn-primary" href="#preview">
-                Watch free episodes
+              <a className="btn btn-primary" href={WEB_APP_URL}>
+                {t("Watch Online", "立即在线观看")}
               </a>
-              <a className="btn btn-ghost" href="#download">
-                Download App
+              <a className="btn btn-ghost" href="#preview">
+                {t("Free Preview", "免费试看")}
               </a>
               <a className="btn btn-ghost" href="#premium">
-                See plans
+                {t("See plans", "查看会员")}
               </a>
             </div>
             <p className="hero-web-link">
-              Prefer the browser?{" "}
+              {t("Prefer the full player?", "直接进入完整播放大厅？")}{" "}
               <a href={WEB_APP_URL} target="_blank" rel="noopener noreferrer">
-                Open the web app ↗
+                {t("Open LeapDrama Web App ↗", "打开 LeapDrama 播放端 ↗")}
               </a>
             </p>
             {stats.length > 0 && (
@@ -172,19 +184,19 @@ function HomePage() {
                 {rating && (
                   <li>
                     <strong>★★★★★</strong>
-                    {rating.value} average rating
+                    {rating.value} {t("average rating", "综合评分")}
                   </li>
                 )}
-                {downloads && <li>{downloads.value} downloads worldwide</li>}
+                {downloads && <li>{downloads.value} {t("viewers worldwide", "全球观众")}</li>}
               </ul>
             )}
           </div>
           <div className="hero-art">
             <div className="phone">
-              <img src="/ph_feed.png" alt="A MiniTV drama playing in the mobile app" />
+              <img src="/ph_feed.png" alt="LeapDrama vertical player preview" />
             </div>
-            {rating && <div className="chip chip-top">★ {rating.value} rating</div>}
-            {downloads && <div className="chip chip-bottom">{downloads.value} downloads</div>}
+            {rating && <div className="chip chip-top">★ {rating.value} {t("rating", "评分")}</div>}
+            {downloads && <div className="chip chip-bottom">{downloads.value} {t("plays", "次观看")}</div>}
           </div>
         </div>
       </section>
@@ -221,21 +233,21 @@ function HomePage() {
         <div className="shell">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Why MiniTV</span>
-              <h2>Built for the way you watch</h2>
+              <span className="eyebrow">{t("Why LeapDrama", "为什么选择 LeapDrama")}</span>
+              <h2>{t("Built for the way you watch", "为你的观剧习惯而生")}</h2>
               <p className="section-sub">
-                Short, vertical, and always one swipe from the next episode.
+                {t("Short, vertical, and always one swipe from the next episode.", "短小精悍、高能竖屏，随时滑向下一集。")}
               </p>
             </div>
           </div>
           <div className="feature-grid">
             {features.map((feature) => (
-              <article className="feature" key={feature.title}>
+              <article className="feature" key={feature.titleEn}>
                 <span className="feature-icon">
                   <FeatureGlyph name={feature.icon} />
                 </span>
-                <h3>{feature.title}</h3>
-                <p>{feature.body}</p>
+                <h3>{t(feature.titleEn, feature.titleZh)}</h3>
+                <p>{t(feature.bodyEn, feature.bodyZh)}</p>
               </article>
             ))}
           </div>
@@ -246,12 +258,12 @@ function HomePage() {
         <div className="shell">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Shows</span>
-              <h2>Trending now</h2>
-              <p className="section-sub">The dramas our viewers keep coming back to.</p>
+              <span className="eyebrow">{t("Shows", "热播剧集")}</span>
+              <h2>{t("Trending now", "全站热播")}</h2>
+              <p className="section-sub">{t("The dramas our viewers keep coming back to.", "观众追不停的精选爆款短剧。")}</p>
             </div>
-            <a className="text-link" href="#download">
-              Watch in the app →
+            <a className="text-link" href={WEB_APP_URL}>
+              {t("Watch Online →", "前往播放大厅 →")}
             </a>
           </div>
           <div className="poster-grid">
@@ -263,20 +275,20 @@ function HomePage() {
                   </div>
                 ))
               : trending.map((drama) => (
-                  <a className="poster" key={drama.id} href="#download">
+                  <a className="poster" key={drama.id} href={`#watch/${drama.id}`}>
                     <span className="poster-frame">
                       <PosterImage src={drama.cover_url} alt={`${drama.title} cover`} />
-                      <span className="poster-overlay">Open in app</span>
+                      <span className="poster-overlay">{t("Watch now", "立即观看")}</span>
                     </span>
                     <span className="poster-title">{drama.title}</span>
                     {drama.play_count > 0 && (
-                      <span className="poster-meta">{formatPlays(drama.play_count)} plays</span>
+                      <span className="poster-meta">{formatPlays(drama.play_count)} {t("plays", "次播放")}</span>
                     )}
                   </a>
                 ))}
           </div>
           {!loading && !error && trending.length === 0 && (
-            <p className="empty-state">No published dramas yet. Check back after the next release.</p>
+            <p className="empty-state">{t("No published dramas yet. Check back after the next release.", "暂无上架剧集，敬请期待。")}</p>
           )}
         </div>
       </section>
@@ -286,15 +298,17 @@ function HomePage() {
           <div className="shell">
             <div className="section-head">
               <div>
-                <span className="eyebrow">Free Preview</span>
-                <h2>Watch free episodes online</h2>
+                <span className="eyebrow">{t("Free Preview", "免费试看")}</span>
+                <h2>{t("Watch free episodes online", "在线免费试看前 2 集")}</h2>
                 <p className="section-sub">
-                  The first episodes of our shows stream free in your browser — no app
-                  needed. Paid episodes unlock in the MiniTV app.
+                  {t(
+                    "The first 2 episodes of our shows stream free in your browser — no app needed. Unlock full series on LeapDrama.",
+                    "每部剧集前 2 集浏览器免费直看，无需下载客户端，完整剧集可在 LeapDrama 解锁。",
+                  )}
                 </p>
               </div>
               <a className="text-link" href="#preview">
-                Open the free preview →
+                {t("Open the free preview →", "进入免费试看专区 →")}
               </a>
             </div>
             <div className="poster-grid">
@@ -303,12 +317,12 @@ function HomePage() {
                   <span className="poster-frame">
                     <PosterImage src={drama.cover_url} alt={`${drama.title} cover`} />
                     <span className="preview-badge preview-badge-compact">
-                      {drama.free_playable_count} free
+                      {drama.free_playable_count} {t("free", "集免费")}
                     </span>
-                    <span className="poster-overlay">Watch free</span>
+                    <span className="poster-overlay">{t("Watch free", "免费观看")}</span>
                   </span>
                   <span className="poster-title">{drama.title}</span>
-                  <span className="poster-meta">Free episodes on the web</span>
+                  <span className="poster-meta">{t("Free episodes on the web", "网页免费试看")}</span>
                 </a>
               ))}
             </div>
@@ -344,11 +358,13 @@ function HomePage() {
         <div className="shell">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Premium</span>
-              <h2>Pick how you unlock</h2>
+              <span className="eyebrow">{t("Premium", "会员方案")}</span>
+              <h2>{t("Pick how you unlock", "选择你的解锁方式")}</h2>
               <p className="section-sub">
-                Same three plans everywhere. Subscribe on the web with a card (secure
-                checkout by Stripe) or in the app through the App Store or Google Play.
+                {t(
+                  "Subscribe directly on the web with secure Stripe checkout — works seamlessly across PC and mobile H5.",
+                  "支持海外信用卡安全支付（Stripe Checkout），一次开通即可在 PC 网页与移动端 H5 同步畅看。",
+                )}
               </p>
             </div>
           </div>
@@ -366,11 +382,13 @@ function HomePage() {
                     className={plan.benefits?.best ? "plan best" : "plan"}
                     key={plan.code}
                   >
-                    {plan.benefits?.best && <span className="plan-badge">Most popular</span>}
+                    {plan.benefits?.best && <span className="plan-badge">{t("Most popular", "最受欢迎")}</span>}
                     <h3 className="plan-name">{plan.name_en}</h3>
                     <p className="plan-price">
                       <strong>${(plan.price_cents / 100).toFixed(2)}</strong>
-                      <span>/ {planUnit[plan.code] ?? "period"}</span>
+                      <span>
+                        / {planUnit[plan.code] ? (locale === "zh" ? planUnit[plan.code].zh : planUnit[plan.code].en) : t("period", "期")}
+                      </span>
                     </p>
                     <ul className="plan-benefits">
                       {(plan.benefits?.items ?? []).map((item) => (
@@ -385,7 +403,7 @@ function HomePage() {
                       }
                       href={WEB_APP_URL}
                     >
-                      Subscribe on the web
+                      {t("Subscribe on the web", "前往网页开通")}
                     </a>
                   </article>
                 ))}
@@ -397,15 +415,15 @@ function HomePage() {
         <div className="shell">
           <div className="section-head">
             <div>
-              <span className="eyebrow">FAQ</span>
-              <h2>Good to know</h2>
+              <span className="eyebrow">{t("FAQ", "常见问题")}</span>
+              <h2>{t("Good to know", "观影指南")}</h2>
             </div>
           </div>
           <div className="faq-list">
             {faqs.map((faq) => (
-              <details className="faq-item" key={faq.q}>
-                <summary>{faq.q}</summary>
-                <p>{faq.a}</p>
+              <details className="faq-item" key={faq.qEn}>
+                <summary>{t(faq.qEn, faq.qZh)}</summary>
+                <p>{t(faq.aEn, faq.aZh)}</p>
               </details>
             ))}
           </div>
@@ -416,19 +434,19 @@ function HomePage() {
         <div className="shell">
           <div className="download-card">
             <div className="download-copy">
-              <span className="eyebrow">Download</span>
-              <h2>Get MiniTV on your phone</h2>
+              <span className="eyebrow">{t("Watch Anywhere", "随时随地畅看")}</span>
+              <h2>{t("Get LeapDrama on your phone", "手机与电脑同步追剧")}</h2>
               <p>
-                Install the app to unlock every episode, download shows, and manage your
-                subscription. The Android build is ready — install the APK below. iOS is
-                still on the way; until then, free previews and the full web app work
-                right here in your browser.
+                {t(
+                  "Stream every drama directly in your mobile or desktop browser — no installation required. Or grab the Android APK below.",
+                  "无需下载原生客户端，PC 网页与移动端 H5 打开即看；也可选择下方 Android 安装包。",
+                )}
               </p>
               <div className="store-buttons">
                 <a
                   className="store-btn store-btn-apk"
                   href={ANDROID_APK.url}
-                  download={`MiniTV-${ANDROID_APK.version}.apk`}
+                  download={`LeapDrama-${ANDROID_APK.version}.apk`}
                 >
                   <svg className="icon-stroke" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 3.6v10.4" />
@@ -507,9 +525,9 @@ function HomePage() {
             </div>
             <div className="qr-block">
               <div className="qr-tile">
-                <img src="/qr-web.png" alt="QR code to watch MiniTV in your browser" />
+                <img src="/qr-web.png" alt="QR code to watch LeapDrama in your browser" />
               </div>
-              <p className="qr-caption">Scan to watch on the web</p>
+              <p className="qr-caption">{t("Scan to watch on the web", "扫码在手机浏览器观看")}</p>
             </div>
           </div>
         </div>
@@ -529,19 +547,20 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Page switches jump; anchors within the homepage keep smooth scrolling.
     const instant = previousKind.current !== null && previousKind.current !== route.kind;
     previousKind.current = route.kind;
     scrollToRoute(route, { instant });
   }, [route]);
 
   return (
-    <div className="page">
-      <SiteHeader />
-      {route.kind === "home" && <HomePage />}
-      {route.kind === "preview" && <PreviewPage />}
-      {route.kind === "watch" && <WatchPage dramaId={route.dramaId} />}
-      <SiteFooter />
-    </div>
+    <PrefsProvider>
+      <div className="page">
+        <SiteHeader />
+        {route.kind === "home" && <HomePage />}
+        {route.kind === "preview" && <PreviewPage />}
+        {route.kind === "watch" && <WatchPage dramaId={route.dramaId} />}
+        <SiteFooter />
+      </div>
+    </PrefsProvider>
   );
 }

@@ -125,7 +125,7 @@ export function PlayPage({ dramaId, locale, onBack, onOpenDrama, onOpenRewards }
 
   const shareCurrent = () => {
     if (navigator.share) {
-      navigator.share({ title: payload?.drama.title || "MiniTV", url: window.location.href }).catch(() => undefined);
+      navigator.share({ title: payload?.drama.title || "LeapDrama", url: window.location.href }).catch(() => undefined);
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href).then(() => toast(t(locale, "link_copied"))).catch(() => undefined);
     }

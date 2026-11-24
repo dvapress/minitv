@@ -29,7 +29,7 @@ def load_env() -> None:
 
 
 load_env()
-app = FastAPI(title="MiniTV Local", version="0.0.0")
+app = FastAPI(title="LeapDrama", version="0.1.0")
 
 _DEFAULT_ORIGINS = [
     "http://localhost:5173",

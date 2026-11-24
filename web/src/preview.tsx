@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { fetchPreviewCatalog, PreviewCatalog, PreviewDrama } from "./api";
+import { usePrefs } from "./prefs";
 import { PosterImage, formatPlays } from "./ui";
 
 /**
@@ -39,6 +40,7 @@ function PreviewCard({ drama }: { drama: PreviewDrama }) {
 }
 
 export default function PreviewPage() {
+  const { t } = usePrefs();
   const [data, setData] = useState<PreviewCatalog | null>(null);
   const [error, setError] = useState("");
 
@@ -63,26 +65,28 @@ export default function PreviewPage() {
       <section className="section preview-hero">
         <div className="shell">
           <a className="back-link" href="#home">
-            ← Back to home
+            {t("← Back to home", "← 返回首页")}
           </a>
-          <span className="eyebrow">Free Preview</span>
-          <h1>Watch free episodes online</h1>
+          <span className="eyebrow">{t("Free Preview", "免费试看")}</span>
+          <h1>{t("Watch free episodes online", "在线免费试看前 2 集")}</h1>
           <p className="section-sub preview-lede">
-            The first {data?.limit ?? 7} shows in every category stream free right here in your browser.
-            Paid episodes and the full library unlock in the MiniTV app.
+            {t(
+              `The first ${data?.limit ?? 7} shows in every category stream free right here in your browser. Paid episodes and the full library unlock on LeapDrama.`,
+              `每个分类精选前 ${data?.limit ?? 7} 部剧集支持网页直接免费试看，完整剧集可在 LeapDrama 播放端解锁。`,
+            )}
           </p>
           <ul className="preview-notes">
             <li>
               <span className="preview-note-icon" aria-hidden="true">
                 ▶
               </span>
-              Free episodes play instantly — no account needed
+              {t("First 2 episodes play instantly — no account needed", "前 2 集免登录即点即看")}
             </li>
             <li>
               <span className="preview-note-icon" aria-hidden="true">
                 🔒
               </span>
-              Paid episodes stay in the app
+              {t("Paid episodes unlock with coins or VIP", "付费分集支持金币或会员解锁")}
             </li>
             <li>
               <span className="preview-note-icon" aria-hidden="true">
@@ -172,7 +176,7 @@ export default function PreviewPage() {
                 </p>
                 <div className="store-buttons">
                   <a className="btn btn-primary" href="#download">
-                    Get the MiniTV app
+                    Open LeapDrama Web App
                   </a>
                   <a className="btn btn-ghost" href="#premium">
                     See plans

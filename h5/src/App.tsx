@@ -35,8 +35,8 @@ export function App() {
 }
 
 type Theme = "dark" | "light";
-const THEME_KEY = "minitv_h5_theme";
-const REGION_KEY = "minitv_h5_region";
+const THEME_KEY = "leapdrama_theme";
+const REGION_KEY = "leapdrama_region";
 const REGIONS = ["GLOBAL", "US", "JP", "TW", "SG"] as const;
 
 function AppShell() {
@@ -100,14 +100,14 @@ function AppShell() {
         <div className="topbar-inner">
           {searching ? null : tab === "home" || playing || tab === "me" ? (
             <button type="button" className="brand" onClick={() => goTab("home")}>
-              <span className="brand-m">M</span>
-              <span className="brand-rest">iniTV</span>
+              <span className="brand-m">L</span>
+              <span className="brand-rest">eapDrama</span>
             </button>
           ) : (
             <>
               <button type="button" className="brand desktop-brand" onClick={() => goTab("home")}>
-                <span className="brand-m">M</span>
-                <span className="brand-rest">iniTV</span>
+                <span className="brand-m">L</span>
+                <span className="brand-rest">eapDrama</span>
               </button>
               <h1 className="mobile-title">{t(locale, TABS.find((item) => item.id === tab)!.key)}</h1>
             </>

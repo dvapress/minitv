@@ -178,8 +178,8 @@ export function HomePage({ locale, onOpen }: Props) {
       <footer className="site-footer">
         <div className="site-footer-top">
           <div className="site-footer-brand">
-            <span className="brand-m">M</span>
-            <span className="brand-rest">iniTV</span>
+            <span className="brand-m">L</span>
+            <span className="brand-rest">eapDrama</span>
           </div>
           <p className="site-footer-tag">{t(locale, "footer_tagline")}</p>
         </div>
@@ -190,7 +190,7 @@ export function HomePage({ locale, onOpen }: Props) {
           <button type="button" onClick={() => setLegalModal("regional")}>{t(locale, "footer_regional")}</button>
           <a href="/admin/" target="_blank" rel="noopener noreferrer">{t(locale, "creator_studio")} ↗</a>
         </div>
-        <p className="site-footer-copy">© 2026 MiniTV · LeapDrama Global</p>
+        <p className="site-footer-copy">© 2026 LeapDrama. All rights reserved.</p>
       </footer>
 
       {legalModal && (

@@ -70,10 +70,10 @@ export default function Login() {
         alignItems: "center",
         justifyContent: "center",
         padding: 16,
-        background: "#0C0A0B",
+        background: "var(--ld-bg, #16110E)",
       }}
     >
-      <Card title="MiniTV 管理后台登录" style={{ width: "100%", maxWidth: 360 }}>
+      <Card title="LeapDrama 管理后台登录" style={{ width: "100%", maxWidth: 360 }}>
         {hint && (
           <Alert
             type={LOGOUT_REASON === "account_disabled" ? "error" : "warning"}
