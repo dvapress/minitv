@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="LeapDrama 短剧演示站。会员与账单均为模拟，不会产生真实扣费。" />
+    <title>LeapDrama</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      try {
+        var theme = localStorage.getItem("leapdrama.theme");
+        if (theme !== "light" && theme !== "dark") {
+          theme = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        }
+        var locale = localStorage.getItem("leapdrama.locale") === "en" ? "en" : "zh";
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.lang = locale === "en" ? "en" : "zh-Hans";
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -41,6 +41,15 @@ h5/dist/
 # mobile release artifacts (built locally, not committed)
 dist/
 
+# LeapDrama demo local runtime. The built UI in demo/web/build is committed
+# so the target host can start without Node.
+demo/.venv/
+demo/data/
+demo/incoming/
+demo/web/node_modules/
+admin.password
+secret.key
+
 # local media library (large, regenerable via scripts/)
 data/litetv-videos-local/
 data/litetv-videos-real/
@@ -49,3 +58,6 @@ data/litetv-catalog-20261013/
 
 # macOS
 .DS_Store
+
+# Local browser snapshots from demo verification
+.playwright-mcp/

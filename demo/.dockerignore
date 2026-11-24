@@ -1,0 +1,8 @@
+web/node_modules
+web/build
+.venv
+data
+incoming
+.env
+**/__pycache__
+**/.pytest_cache

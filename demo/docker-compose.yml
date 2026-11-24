@@ -1,0 +1,36 @@
+# OPTIONAL. Not the deployment for harleyw on aiexplorer.asia.
+# That user cannot talk to the Docker daemon and has no passwordless sudo.
+# Do not change groups or privileges to make this file work.
+# The supported path is scripts/install-user.sh and systemd --user.
+name: leapdrama-demo
+
+services:
+  leapdrama:
+    build: .
+    image: leapdrama:current
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${LEAPDRAMA_PUBLISH_PORT:-18080}:18080"
+    environment:
+      LEAPDRAMA_DATA_DIR: /data
+      LEAPDRAMA_BIND: 0.0.0.0
+      LEAPDRAMA_PORT: "18080"
+      LEAPDRAMA_PUBLIC_BASE_URL: ${LEAPDRAMA_PUBLIC_BASE_URL:-https://leapdrama-demo.rei.autos}
+      LEAPDRAMA_LIBRARY_ROOTS: /media
+      LEAPDRAMA_STATIC_DIR: /opt/leapdrama/web/build
+      LEAPDRAMA_SELECTION: /opt/leapdrama/import-selection.json
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - leapdrama-data:/data
+      - ${LEAPDRAMA_MEDIA_HOST_PATH:-./incoming}:/media:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:18080/health', timeout=3)"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  leapdrama-data:

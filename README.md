@@ -10,6 +10,8 @@
 
 ---
 
+> **LeapDrama 客户演示**（PC + 手机网页，不依赖本仓库原来的 Bunny / Stripe / PostgreSQL 部署）见 [`demo/README.md`](demo/README.md)。目标是 `https://leapdrama-demo.rei.autos`，在目标机上以普通用户监听 `127.0.0.1:18080`。
+>
 > **短剧出海，全链路交付**
 >
 > 收款通道 · 短剧制作 · 系统定制 · 广告投放 —— 需要哪一段就聊哪一段，[扫码加微信](#商务合作)。

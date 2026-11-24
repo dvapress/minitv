@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "episode_from": 1,
+  "episode_to": 10,
+  "include": ["锦鲤娘", "孝子贤孙", "全家听我心声", "爹爹开门"],
+  "exclude": [
+    {
+      "name": "白月光反击说明书",
+      "reason": "Source inventory is missing episodes 23 and 44. Left out of the default demo subset so a numbering gap is not presented as a complete series. Episode numbers are never renumbered; import this folder only with an explicit --series flag."
+    }
+  ],
+  "inventory_note": "Reported source inventory: 10 series, 862 mp4 files, about 10.12 GiB under the operator's Mac directory. The default demo subset is the four include entries, episodes 1-10 only, about 519.1 MiB. Other series stay untouched."
+}
