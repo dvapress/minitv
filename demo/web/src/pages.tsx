@@ -342,7 +342,6 @@ export function WatchPage({ slug }: { slug: string }) {
             <label><input type="checkbox" checked={autoplay} onChange={(event) => { setAutoplay(event.target.checked); localStorage.setItem("leapdrama.autoplay", event.target.checked ? "1" : "0"); }} />{t("watch.autoplay")}</label>
           </div>
           {auth?.duration_flag === "long" ? <p className="warn">{t("watch.long")}</p> : null}
-          {detail.series.numbering_note ? <p className="meta">{detail.series.numbering_note}</p> : null}
           <div className="actions">
             <button className="ghost" onClick={() => void toggleLike()}>{detail.liked ? t("watch.liked") : t("watch.like")} {detail.like_count}</button>
             <button className="ghost" onClick={() => void toggleFavorite()}>{detail.favorited ? t("watch.favorited") : t("watch.favorite")}</button>

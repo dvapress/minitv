@@ -88,7 +88,6 @@ def series_card(conn: sqlite3.Connection, row: sqlite3.Row, reason: str | None =
         "free_count": row["free_count"],
         "play_count": row["play_count"],
         "long_episode_count": stats["long_episode_count"],
-        "numbering_note": row["numbering_note"],
         "reason": reason,
     }
 

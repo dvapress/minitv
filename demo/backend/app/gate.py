@@ -34,10 +34,12 @@ GATE_HTML = """<!doctype html>
   <style>
     :root { color-scheme: light dark; }
     body { margin: 0; min-height: 100vh; display: grid; place-items: center; font-family: "PingFang SC", "Noto Sans SC", "Segoe UI", sans-serif; background: #14110e; color: #f6f1e8; }
-    form { width: min(420px, calc(100% - 32px)); background: #221c17; border: 1px solid rgba(246,241,232,.14); border-radius: 20px; padding: 24px; }
-    h1 { font-family: Didot, "Songti SC", serif; font-weight: 500; margin: 0 0 8px; }
+    html, body { overflow-x: hidden; }
+    form { width: min(420px, calc(100vw - 32px)); box-sizing: border-box; background: #221c17; border: 1px solid rgba(246,241,232,.14); border-radius: 20px; padding: 24px; }
+    h1 { font-family: Didot, "Songti SC", serif; font-weight: 500; margin: 0 0 8px; text-wrap: balance; }
     p { color: #cbbba8; line-height: 1.5; }
-    input { width: 100%; box-sizing: border-box; margin: 12px 0; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(246,241,232,.2); background: #100e0c; color: inherit; }
+    label { display: block; margin-top: 12px; }
+    input { display: block; width: 100%; max-width: 100%; box-sizing: border-box; margin: 8px 0 0; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(246,241,232,.2); background: #100e0c; color: inherit; }
     button { background: #e0b15a; color: #2a1c08; border: 0; border-radius: 999px; padding: 10px 16px; font-weight: 700; }
     .err { color: #f0a090; min-height: 1.2em; }
   </style>
@@ -46,7 +48,8 @@ GATE_HTML = """<!doctype html>
   <form id="gate">
     <h1>LeapDrama</h1>
     <p id="lead">这是整站访问口令。两个口令任一即可，口令不会记在浏览器里。</p>
-    <label>口令 <input id="passcode" type="password" name="passcode" autocomplete="current-password" required /></label>
+    <label for="passcode">口令</label>
+    <input id="passcode" type="password" name="passcode" autocomplete="current-password" required />
     <p class="err" id="err" role="alert"></p>
     <button type="submit">进入</button>
   </form>

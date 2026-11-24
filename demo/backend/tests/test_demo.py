@@ -10,6 +10,7 @@ import pytest
 
 from app.cli import run
 from app.config import load_settings
+from app.db import connect, iso
 from app.importer import ImportOptions, import_library
 from app.main import create_app
 from app.media import episode_number_from_stem, missing_numbers, split_rendition
@@ -335,3 +336,46 @@ def test_empty_library_does_not_invent_media(env):
     health = env.client.get("/health").json()
     assert health["series_count"] == 0
     assert health["media"] == "local"
+
+
+def test_public_pages_do_not_render_import_diagnostics(env):
+    note = "long 2; 8 episode(s) outside the selected window"
+    now = iso()
+    conn = connect(env.settings)
+    try:
+        conn.execute(
+            """
+            INSERT INTO series (
+              slug, title, free_count, numbering_note, created_at, updated_at
+            ) VALUES ('jinliniang', '锦鲤娘', 2, ?, ?, ?)
+            """,
+            (note, now, now),
+        )
+        series_id = conn.execute("SELECT id FROM series WHERE slug = 'jinliniang'").fetchone()["id"]
+        conn.execute(
+            """
+            INSERT INTO episodes (
+              series_id, number, title, duration_seconds, duration_flag, browser_playable, created_at, updated_at
+            ) VALUES (?, 2, '第2集', 217.2, 'long', 1, ?, ?)
+            """,
+            (series_id, now, now),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    detail = env.client.get("/api/series/jinliniang")
+    home = env.client.get("/api/home")
+    assert detail.status_code == 200
+    for body in (detail.text, home.text):
+        assert "outside the selected window" not in body
+        assert "episode(s)" not in body
+        assert "long 2" not in body
+    episode = detail.json()["episodes"][0]
+    assert episode["duration_flag"] == "long"
+    assert episode["number"] == 2
+    page = (DEMO_ROOT / "web" / "src" / "pages.tsx").read_text(encoding="utf-8")
+    gate = (DEMO_ROOT / "backend" / "app" / "gate.py").read_text(encoding="utf-8")
+    assert "numbering_note" not in page
+    assert "outside the selected window" not in page
+    assert "原片超过 3 分钟，未剪辑" in (DEMO_ROOT / "web" / "src" / "i18n.ts").read_text(encoding="utf-8")
+    assert "box-sizing: border-box" in gate

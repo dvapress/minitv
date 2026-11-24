@@ -15,7 +15,6 @@ export type SeriesCard = {
   free_count: number;
   play_count: number;
   long_episode_count: number;
-  numbering_note: string;
   reason: string | null;
 };
 
