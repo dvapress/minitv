@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import getpass
 import json
 import sqlite3
 import sys
@@ -10,8 +11,10 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+from app.codec import inspect as inspect_codec
 from app.config import load_settings
 from app.db import connect, init_db
+from app.gate import write_hashes
 from app.importer import ImportOptions, import_library, scan_library, strict_failed
 from app.selection import load_selection
 
@@ -152,6 +155,37 @@ def command_backup(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_gate_set(args: argparse.Namespace) -> int:
+    _apply_data_dir(args)
+    settings = load_settings()
+    settings.data_dir.mkdir(parents=True, exist_ok=True)
+    if sys.stdin.isatty():
+        first = getpass.getpass("passcode 1 (not echoed): ")
+        second = getpass.getpass("passcode 2 (not echoed): ")
+    else:
+        lines = [line.strip("\r") for line in sys.stdin.read().splitlines() if line.strip("\r") != ""]
+        if len(lines) != 2:
+            print("stdin must contain exactly two non-empty lines", file=sys.stderr)
+            return 1
+        first, second = lines
+    try:
+        write_hashes(settings, first, second)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(f"wrote 2 hashes to {settings.data_dir / 'gate.hashes'}")
+    return 0
+
+
+def command_probe_codec(args: argparse.Namespace) -> int:
+    path = Path(args.path)
+    if not path.is_file():
+        print("file not found", file=sys.stderr)
+        return 2
+    print(json.dumps(inspect_codec(path), ensure_ascii=False))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--data-dir", help="Override LEAPDRAMA_DATA_DIR for this command")
@@ -185,6 +219,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     backup = sub.add_parser("backup", parents=[common], help="Write a consistent SQLite backup under the data directory")
     backup.set_defaults(func=command_backup)
+
+    gate_set = sub.add_parser("gate-set", parents=[common], help="Store two whole-site passcodes as salted hashes")
+    gate_set.set_defaults(func=command_gate_set)
+
+    probe = sub.add_parser("probe-codec", help="Print MP4 codec, size, and duration without ffmpeg")
+    probe.add_argument("path")
+    probe.set_defaults(func=command_probe_codec)
     return parser
 
 

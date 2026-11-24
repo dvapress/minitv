@@ -219,6 +219,68 @@ To reverse a bad code update, rsync the previous tree the same way and start aga
 - There is no download button and no service worker. Offline caching is not implemented.
 - Light and dark themes, Chinese and English, and a region preference are stored in the browser and, when signed in, on the user row. Region does not geo-block and is not a CDN.
 
+## Upgrade from 7ae2d0a
+
+Do this as `harleyw`. Do not delete `data/`. The schema change only adds columns and two gate tables.
+
+```bash
+systemctl --user stop leapdrama-demo.service
+cd "$HOME/apps/leapdrama-demo"
+.venv/bin/python -m app.cli backup
+rsync -a --exclude .venv --exclude data --exclude .env /path/to/new/demo/ "$HOME/apps/leapdrama-demo/"
+.venv/bin/python -m pip install -r requirements.txt
+./scripts/set-gate-passcodes.sh
+```
+
+The passcode command prompts twice and does not echo. It writes `data/gate.hashes` (mode 0600). Do not put the passcodes in `.env`, the systemd unit, or the shell history. A non-interactive alternative is a mode-0600 file with exactly two lines, piped in, then deleted by the operator:
+
+```bash
+./scripts/set-gate-passcodes.sh < /path/to/two-lines
+```
+
+Add these lines to `.env` (no passcodes):
+
+```bash
+LEAPDRAMA_GATE=1
+LEAPDRAMA_TRUSTED_PROXY=cloudflare
+LEAPDRAMA_COOKIE_SECURE=auto
+```
+
+`LEAPDRAMA_TRUSTED_PROXY=cloudflare` is what makes the session cookie `Secure` behind the tunnel and what selects `CF-Connecting-IP` for rate limits. Forwarded headers are ignored until that value is set, so a client cannot spoof them. Loopback is never the rate-limit bucket, because every tunnel connection arrives from 127.0.0.1.
+
+```bash
+systemctl --user start leapdrama-demo.service
+curl -fsS http://127.0.0.1:18080/health
+```
+
+With the gate on, health is only `{"status":"ok","service":"leapdrama"}`. It does not include series counts. The catalog, covers, and video URLs, including `Range` requests, answer 401 until one of the two passcodes is accepted. Logout is `POST /api/gate/logout`. The gate session lasts 12 hours. It does not replace the creator login.
+
+Then re-import. This does not modify originals. It fills codec, pixel size, and duration from the MP4 boxes even when the server has no ffmpeg, and it stops advertising HEVC as playable:
+
+```bash
+./scripts/import-media.sh /path/to/短剧合集2 --json
+.venv/bin/python -m app.cli probe-codec /path/to/one-episode.mp4
+```
+
+`probe-codec` prints the fourcc, profile, size, and duration. It does not use ffmpeg.
+
+锦鲤娘 episodes 1 and 2 are HEVC Main, yuv420p, 720x1280. Desktop Chrome will move the timeline on the AAC track and leave the picture black. Prepare an H.264 sibling on the Mac, beside the original, and import again:
+
+```bash
+ffmpeg -y -i "1.mp4" -map 0:v:0 -map 0:a:0? \
+  -c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.1 \
+  -crf 20 -c:a aac -b:a 128k -movflags +faststart \
+  "1.browser.mp4"
+```
+
+Do not replace `1.mp4`. The same pattern works for `2.mp4` → `2.browser.mp4`. 孝子贤孙 episodes 1 and 2 are already H.264 High, 8-bit yuv420p, 720x1280, so they do not need that derivative to be considered playable.
+
+## Playback evidence
+
+Source and server hashes match for the four sampled files, so those copies are not a transfer problem. The server had no ffmpeg, so the first import stored duration as null, 0x0, and `browser_playable=1` for every mp4, including HEVC. That capability flag was wrong.
+
+A 2-second H.264 re-encode of the 孝子贤孙 picture (not the original 25 MB file) was served by this app and played in Chromium. The element reported 720x1280 and a canvas sample of the frame was not black, including a copy whose `moov` atom sits after `mdat`. The original 孝子贤孙 file was not replayed here. Its codec parameters are the same family Chrome painted in that check (`avc1`, High, 8-bit, yuv420p). A black picture on that original is not explained by “H.264 High is unsupported.”
+
 ## Checks run in development
 
 ```bash

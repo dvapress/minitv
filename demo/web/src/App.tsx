@@ -36,6 +36,7 @@ export function App() {
   const [theme, setThemeState] = useState<"light" | "dark">(document.documentElement.dataset.theme === "light" ? "light" : "dark");
   const [region, setRegionState] = useState(localStorage.getItem("leapdrama.region") || "ALL");
   const [user, setUser] = useState<User | null>(null);
+  const [gateOn, setGateOn] = useState(false);
   const route = routeOf(path);
 
   useEffect(() => {
@@ -61,6 +62,9 @@ export function App() {
   }
 
   useEffect(() => { void refreshUser(); }, [locale]);
+  useEffect(() => {
+    api<{ gate?: boolean }>("/api/config", locale).then((config) => setGateOn(Boolean(config.gate))).catch(() => undefined);
+  }, [locale]);
 
   function go(next: string) {
     window.history.pushState({}, "", next);
@@ -129,6 +133,7 @@ export function App() {
             <button className="ghost" type="button" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>{theme === "dark" ? translate(locale, "me.themeLight") : translate(locale, "me.themeDark")}</button>
             {user ? <button className="ghost" type="button" onClick={() => go("/me")}>{user.member ? translate(locale, "nav.member") : user.display_name}</button> : <button className="solid" type="button" onClick={() => go("/login")}>{translate(locale, "nav.login")}</button>}
             <button className="ghost" type="button" onClick={() => go("/creator")}>{translate(locale, "nav.creator")}</button>
+            {gateOn ? <button className="ghost" type="button" onClick={() => { void fetch("/api/gate/logout", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: "{}" }).then(() => { window.location.assign("/gate"); }); }}>{translate(locale, "nav.leave")}</button> : null}
           </div>
         </header>
         <div className="wrap"><p className="demo-banner">{translate(locale, "demo.banner")}</p></div>

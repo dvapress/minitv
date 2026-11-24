@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, FastAPI, File, Form, HTTPException, Requ
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 
-from app import catalog, media
+from app import catalog, gate, media
 from app.config import Settings
 from app.db import connect, iso
 from app.security import hash_password, new_token, token_hash, verify_password
@@ -154,6 +154,23 @@ def _episode_or_404(conn: sqlite3.Connection, episode_id: int, request: Request)
 
 def _guard_playback(episode: sqlite3.Row, user: sqlite3.Row | None, request: Request) -> None:
     if not episode["browser_playable"] or not episode["media_path"]:
+        block = episode["playback_block"] if "playback_block" in episode.keys() else ""
+        if block == "hevc":
+            fail(
+                404,
+                "codec_unsupported",
+                "这集是 HEVC。Chrome 里时间轴可以走，但画面是黑的。请另存 H.264 派生文件（如 1.browser.mp4），不要改原片，然后重新导入。",
+                "This episode is HEVC. Chrome can move the timeline while the picture stays black. Add an H.264 sibling such as 1.browser.mp4 without modifying the original, then import again.",
+                request,
+            )
+        if block == "high10":
+            fail(
+                404,
+                "codec_unsupported",
+                "这集的 H.264 不是 8-bit 4:2:0，Chrome 可能画不出画面。请另存一份 yuv420p 的 H.264 派生文件，不要改原片。",
+                "This H.264 file is not 8-bit 4:2:0, so Chrome may leave the picture black. Add a yuv420p H.264 sibling without modifying the original.",
+                request,
+            )
         fail(404, "not_playable", "这一集没有可在浏览器播放的文件", "This episode has no browser-playable file", request)
     access = catalog.access_for(user, int(episode["number"]), int(episode["free_count"]), True)
     if access == "locked":
@@ -169,6 +186,16 @@ def _guard_playback(episode: sqlite3.Row, user: sqlite3.Row | None, request: Req
 @router.get("/health")
 def health(request: Request) -> JSONResponse:
     settings: Settings = request.app.state.settings
+    if settings.gate_enabled:
+        try:
+            conn = connect(settings)
+            try:
+                conn.execute("SELECT 1").fetchone()
+            finally:
+                conn.close()
+            return JSONResponse(gate.public_health())
+        except Exception:
+            return JSONResponse({"status": "degraded", "service": "leapdrama"}, status_code=503)
     payload = {
         "status": "ok",
         "service": "leapdrama",
@@ -223,6 +250,7 @@ def config(request: Request) -> dict:
         "locales": ["zh", "en"],
         "default_locale": "zh",
         "regions": catalog.REGIONS,
+        "gate": settings.gate_enabled,
         "free_episodes": settings.free_episode_count,
         "max_episode_seconds": settings.max_episode_seconds,
         "selection": {
@@ -785,6 +813,23 @@ def creator_episode(
         "width": info["width"],
         "height": info["height"],
     }
+
+
+@router.post("/api/gate/login")
+async def gate_login(request: Request):
+    try:
+        document = await request.json()
+    except Exception:
+        document = None
+    passcode = document.get("passcode") if isinstance(document, dict) else ""
+    if not isinstance(passcode, str):
+        passcode = ""
+    return gate.login(request, request.app.state.settings, passcode)
+
+
+@router.post("/api/gate/logout")
+def gate_logout(request: Request):
+    return gate.logout(request, request.app.state.settings)
 
 
 def mount_ui(app: FastAPI, settings: Settings) -> None:

@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request
 from app.api import mount_ui, router
 from app.config import Settings, load_settings
 from app.db import ensure_admin, ensure_secret, init_db
+from app import gate
 
 logger = logging.getLogger("leapdrama")
 
@@ -22,10 +23,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.middleware("http")
     async def demo_headers(request: Request, call_next):
+        blocked = gate.decide(request, settings)
+        if blocked is not None:
+            blocked.headers["X-LeapDrama-Demo"] = "simulated-payments"
+            return blocked
         response = await call_next(request)
-        if request.url.path.startswith("/api") or request.url.path == "/health":
-            response.headers["Cache-Control"] = "no-store"
-            response.headers["X-LeapDrama-Demo"] = "simulated-payments"
+        if settings.gate_enabled or request.url.path.startswith("/api") or request.url.path == "/health":
+            response.headers["Cache-Control"] = "private, no-store"
+            response.headers["Pragma"] = "no-cache"
+        response.headers["X-LeapDrama-Demo"] = "simulated-payments"
         return response
 
     app.include_router(router)

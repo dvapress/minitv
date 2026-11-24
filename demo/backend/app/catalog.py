@@ -206,6 +206,7 @@ def series_detail(conn: sqlite3.Connection, row: sqlite3.Row, user: sqlite3.Row 
                 "height": episode["height"],
                 "access": access_for(user, episode["number"], row["free_count"], bool(episode["browser_playable"])),
                 "browser_playable": bool(episode["browser_playable"]),
+                "playback_block": episode["playback_block"] if "playback_block" in episode.keys() else "",
                 "has_subtitle": bool(subtitles),
                 "rendition_count": 1 + len(renditions) if episode["media_path"] else len(renditions),
                 "play_count": episode["play_count"],

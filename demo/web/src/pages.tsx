@@ -131,7 +131,8 @@ export function WatchPage({ slug }: { slug: string }) {
   const { t, locale, user, go, refreshUser } = useApp();
   const [detail, setDetail] = useState<{ series: SeriesCard; episodes: Episode[]; liked: boolean; like_count: number; favorited: boolean; recommendations: SeriesCard[] } | null>(null);
   const [auth, setAuth] = useState<Authorize | null>(null);
-  const [gate, setGate] = useState<"membership" | "unavailable" | null>(null);
+  const [gate, setGate] = useState<"membership" | "unavailable" | "codec" | null>(null);
+  const [blockCode, setBlockCode] = useState("unsupported");
   const [rendition, setRendition] = useState("source");
   const [speed, setSpeed] = useState(1);
   const [subsOn, setSubsOn] = useState(true);
@@ -155,7 +156,8 @@ export function WatchPage({ slug }: { slug: string }) {
     const episode = list.find((item) => item.id === id);
     if (episode && (episode.access === "locked" || episode.access === "unavailable")) {
       setAuth(null);
-      setGate(episode.access === "locked" ? "membership" : "unavailable");
+      setBlockCode(episode.playback_block || "unsupported");
+      setGate(episode.playback_block ? "codec" : episode.access === "locked" ? "membership" : "unavailable");
       return;
     }
     try {
@@ -170,7 +172,7 @@ export function WatchPage({ slug }: { slug: string }) {
     } catch (reason) {
       const code = reason instanceof Error && "code" in reason ? String((reason as { code?: string }).code) : "";
       if (code === "membership_required") setGate("membership");
-      else if (code === "not_playable") setGate("unavailable");
+      else if (code === "codec_unsupported" || code === "not_playable") setGate(code === "codec_unsupported" ? "codec" : "unavailable");
       else setError(reason instanceof Error ? reason.message : t("common.error"));
       setAuth(null);
     }
@@ -315,6 +317,7 @@ export function WatchPage({ slug }: { slug: string }) {
             </div>
           ) : null}
           {gate === "unavailable" ? <div className="gate"><p>{t("gate.unavailable")}</p></div> : null}
+          {gate === "codec" ? <div className="gate"><p>{blockCode === "hevc" ? t("codec.hevc") : blockCode === "high10" ? t("codec.high10") : blockCode === "unknown" ? t("codec.unknown") : t("codec.unsupported")}</p></div> : null}
           <div className="controls">
             <label>{t("watch.speed")}
               <select value={speed} onChange={(event) => { const value = Number(event.target.value); setSpeed(value); if (videoRef.current) videoRef.current.playbackRate = value; }}>

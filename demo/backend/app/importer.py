@@ -8,7 +8,7 @@ import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from app import media
+from app import codec, media
 from app.catalog import slugify, unique_slug
 from app.config import Settings
 from app.db import connect, iso
@@ -37,6 +37,7 @@ class _EpisodeGroup:
     renditions: list[tuple[int, Path]] = field(default_factory=list)
     subtitles: list[tuple[str, Path]] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
+    browser_files: list[Path] = field(default_factory=list)
 
 
 def normalize_name(name: str) -> str:
@@ -107,11 +108,15 @@ def _group_episodes(folder: Path) -> tuple[dict[int, _EpisodeGroup], list[str]]:
     unparsed: list[str] = []
     files = _episode_files(folder)
     for path in files:
-        number, height = media.classify_video(path)
+        base, is_derivative = codec.split_browser_derivative(path)
+        number, height = media.classify_video(Path(base + path.suffix))
         if number is None:
             unparsed.append(path.name)
             continue
         group = groups.setdefault(number, _EpisodeGroup(number=number))
+        if is_derivative:
+            group.browser_files.append(path)
+            continue
         if height is None:
             if group.primary is None:
                 group.primary = path
@@ -356,11 +361,29 @@ def _materialize(settings: Settings, src: Path, dest: Path, in_place: bool) -> s
     return str(dest.resolve())
 
 
-def _unchanged(row: sqlite3.Row, src: Path) -> bool:
-    stat = src.stat()
+def _choose_served(group: _EpisodeGroup) -> tuple[Path, Path, dict]:
+    original = group.primary
+    if original is None:
+        raise RuntimeError("episode has no source file")
+    chosen = original
+    info = codec.inspect(original)
+    for candidate in group.browser_files:
+        candidate_info = codec.inspect(candidate)
+        if candidate_info["playable"]:
+            return original, candidate, candidate_info
+    return original, chosen, info
+
+
+def _unchanged(row: sqlite3.Row, original: Path, served: Path) -> bool:
+    stat = original.stat()
+    served_stat = served.stat()
     if row["source_size"] != stat.st_size or row["source_mtime_ns"] != stat.st_mtime_ns:
         return False
-    if row["duration_flag"] == "unknown":
+    if not row["video_codec"]:
+        return False
+    if row["served_size"] != served_stat.st_size or row["served_mtime_ns"] != served_stat.st_mtime_ns:
+        return False
+    if row["duration_flag"] == "unknown" and media.tool("ffprobe"):
         return False
     media_path = row["media_path"]
     if not media_path or not Path(media_path).is_file():
@@ -433,7 +456,9 @@ def import_library(settings: Settings, root: Path, options: ImportOptions | None
                         (series_id, number),
                     ).fetchone()
                     action = "imported"
-                    if existing and _unchanged(existing, primary):
+                    original, served, codec_info = _choose_served(group)
+                    served_stat = served.stat()
+                    if existing and _unchanged(existing, original, served):
                         action = "unchanged"
                         info = {
                             "duration": existing["duration_seconds"],
@@ -445,16 +470,29 @@ def import_library(settings: Settings, root: Path, options: ImportOptions | None
                         subtitles = json.loads(existing["subtitles_json"] or "[]")
                         playable = bool(existing["browser_playable"])
                         flag = existing["duration_flag"]
+                        block = existing["playback_block"]
+                        video_codec_name = existing["video_codec"]
                     else:
-                        info = media.probe(primary)
+                        probed_file = served if served != original else primary
+                        info = media.probe(probed_file)
+                        if not info.get("width"):
+                            info["width"] = codec_info.get("width") or 0
+                        if not info.get("height"):
+                            info["height"] = codec_info.get("height") or 0
+                        if info.get("duration") is None and codec_info.get("duration"):
+                            info["duration"] = codec_info["duration"]
                         flag = media.duration_flag(info["duration"], limit)
-                        suffix = primary.suffix.lower() or ".mp4"
-                        dest = settings.data_dir / "media" / str(series_id) / f"{number}{suffix}"
-                        media_path = _materialize(settings, primary, dest, options.in_place)
+                        suffix = ".mp4" if served.suffix.lower() in {".mp4", ".m4v"} else (served.suffix.lower() or ".mp4")
+                        dest_name = f"{number}.browser{suffix}" if served != original else f"{number}{suffix}"
+                        dest = settings.data_dir / "media" / str(series_id) / dest_name
+                        media_path = _materialize(settings, served, dest, options.in_place)
                         if not options.in_place and Path(media_path).is_file():
                             bytes_copied += Path(media_path).stat().st_size
                         renditions = []
                         for height, rendition_path in sorted(group.renditions, key=lambda item: item[0]):
+                            rendition_codec = codec.inspect(rendition_path)
+                            if not rendition_codec["playable"]:
+                                continue
                             rendition_dest = settings.data_dir / "media" / str(series_id) / f"{number}.{height}p{rendition_path.suffix.lower()}"
                             stored = _materialize(settings, rendition_path, rendition_dest, options.in_place)
                             probed = media.probe(rendition_path)
@@ -484,33 +522,43 @@ def import_library(settings: Settings, root: Path, options: ImportOptions | None
                                     "path": stored,
                                 }
                             )
-                        playable = Path(media_path).suffix.lower() in media.BROWSER_EXT
+                        playable = bool(codec_info["playable"]) and Path(media_path).suffix.lower() in media.BROWSER_EXT
+                        block = "" if playable else codec_info["reason"]
+                        video_codec_name = codec_info["video"]
                         digest = media.sha256_file(primary)
+                        values = (
+                            info["duration"],
+                            flag,
+                            info["width"],
+                            info["height"],
+                            media_path,
+                            str(primary.resolve()),
+                            stat.st_size,
+                            stat.st_mtime_ns,
+                            digest,
+                            json.dumps(renditions, ensure_ascii=False),
+                            json.dumps(subtitles, ensure_ascii=False),
+                            1 if playable else 0,
+                            video_codec_name,
+                            block,
+                            served_stat.st_size,
+                            served_stat.st_mtime_ns,
+                        )
                         if existing is None:
                             conn.execute(
                                 """
                                 INSERT INTO episodes (
                                   series_id, number, title, duration_seconds, duration_flag, width, height,
                                   media_path, source_path, source_size, source_mtime_ns, source_sha256,
-                                  renditions_json, subtitles_json, browser_playable, created_at, updated_at
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                  renditions_json, subtitles_json, browser_playable, video_codec,
+                                  playback_block, served_size, served_mtime_ns, created_at, updated_at
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                                 """,
                                 (
                                     series_id,
                                     number,
                                     f"第{number}集",
-                                    info["duration"],
-                                    flag,
-                                    info["width"],
-                                    info["height"],
-                                    media_path,
-                                    str(primary.resolve()),
-                                    stat.st_size,
-                                    stat.st_mtime_ns,
-                                    digest,
-                                    json.dumps(renditions, ensure_ascii=False),
-                                    json.dumps(subtitles, ensure_ascii=False),
-                                    1 if playable else 0,
+                                    *values,
                                     now,
                                     now,
                                 ),
@@ -522,25 +570,11 @@ def import_library(settings: Settings, root: Path, options: ImportOptions | None
                                 UPDATE episodes SET
                                   duration_seconds=?, duration_flag=?, width=?, height=?, media_path=?,
                                   source_path=?, source_size=?, source_mtime_ns=?, source_sha256=?,
-                                  renditions_json=?, subtitles_json=?, browser_playable=?, updated_at=?
+                                  renditions_json=?, subtitles_json=?, browser_playable=?, video_codec=?,
+                                  playback_block=?, served_size=?, served_mtime_ns=?, updated_at=?
                                 WHERE id=?
                                 """,
-                                (
-                                    info["duration"],
-                                    flag,
-                                    info["width"],
-                                    info["height"],
-                                    media_path,
-                                    str(primary.resolve()),
-                                    stat.st_size,
-                                    stat.st_mtime_ns,
-                                    digest,
-                                    json.dumps(renditions, ensure_ascii=False),
-                                    json.dumps(subtitles, ensure_ascii=False),
-                                    1 if playable else 0,
-                                    now,
-                                    existing["id"],
-                                ),
+                                (*values, now, existing["id"]),
                             )
                             action = "updated"
                     if flag == "long":
@@ -552,6 +586,8 @@ def import_library(settings: Settings, root: Path, options: ImportOptions | None
                             "duration_seconds": info["duration"],
                             "duration_flag": flag,
                             "browser_playable": playable,
+                            "video_codec": video_codec_name,
+                            "playback_block": block,
                             "rendition_count": 1 + len(renditions) if action != "unchanged" else 1 + len(json.loads(existing["renditions_json"] or "[]")),
                             "subtitle_count": len(subtitles) if action != "unchanged" else len(json.loads(existing["subtitles_json"] or "[]")),
                             "duplicates": group.duplicates,

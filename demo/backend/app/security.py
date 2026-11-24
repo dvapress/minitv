@@ -8,10 +8,10 @@ import secrets
 ITERATIONS = 120_000
 
 
-def hash_password(password: str) -> str:
+def hash_password(password: str, rounds: int = ITERATIONS) -> str:
     salt = secrets.token_bytes(16)
-    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, ITERATIONS)
-    return f"pbkdf2_sha256${ITERATIONS}${salt.hex()}${digest.hex()}"
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, rounds)
+    return f"pbkdf2_sha256${rounds}${salt.hex()}${digest.hex()}"
 
 
 def verify_password(password: str, stored: str) -> bool:

@@ -29,6 +29,7 @@ export type Episode = {
   height: number;
   access: "free" | "member" | "locked" | "unavailable";
   browser_playable: boolean;
+  playback_block?: string;
   has_subtitle: boolean;
   rendition_count: number;
   play_count: number;
@@ -84,7 +85,12 @@ export async function api<T>(path: string, locale: Locale, init: RequestInit = {
   const text = await response.text();
   const data = text ? JSON.parse(text) as { detail?: { code?: string; message?: string } } : null;
   if (!response.ok) {
-    throw new ApiError(data?.detail?.message || response.statusText, data?.detail?.code || "error", response.status);
+    const code = data?.detail?.code || "error";
+    if (code === "gate_required" && !path.startsWith("/api/gate/")) {
+      const next = window.location.pathname + window.location.search;
+      window.location.assign(`/gate?next=${encodeURIComponent(next.startsWith("/") ? next : "/")}`);
+    }
+    throw new ApiError(data?.detail?.message || response.statusText, code, response.status);
   }
   return data as T;
 }

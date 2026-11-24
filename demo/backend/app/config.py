@@ -27,6 +27,9 @@ class Settings:
     cookie_secure: str
     static_dir: Path
     selection_path: Path
+    gate_enabled: bool = False
+    trusted_proxy: str = ""
+    gate_session_hours: int = 12
     free_episode_count: int = 2
 
     @property
@@ -69,6 +72,14 @@ def load_settings() -> Settings:
     except ValueError as exc:
         raise SystemExit("LEAPDRAMA_PORT, LEAPDRAMA_MAX_EPISODE_SECONDS, or LEAPDRAMA_MAX_UPLOAD_BYTES is not a number.") from exc
     email = (os.environ.get("LEAPDRAMA_ADMIN_EMAIL") or "admin@leapdrama.demo").strip().lower()
+    gate_flag = (os.environ.get("LEAPDRAMA_GATE") or "").strip().lower()
+    proxy = (os.environ.get("LEAPDRAMA_TRUSTED_PROXY") or "").strip().lower()
+    if proxy not in {"", "cloudflare"}:
+        raise SystemExit("LEAPDRAMA_TRUSTED_PROXY must be empty or cloudflare.")
+    try:
+        session_hours = int(os.environ.get("LEAPDRAMA_GATE_SESSION_HOURS", "12"))
+    except ValueError as exc:
+        raise SystemExit("LEAPDRAMA_GATE_SESSION_HOURS is not a number.") from exc
     return Settings(
         data_dir=data_dir,
         secret_key=secret or "",
@@ -83,6 +94,9 @@ def load_settings() -> Settings:
         cookie_secure=(os.environ.get("LEAPDRAMA_COOKIE_SECURE") or "auto").strip().lower(),
         static_dir=static_dir,
         selection_path=selection,
+        gate_enabled=gate_flag in {"1", "true", "yes", "on"},
+        trusted_proxy=proxy,
+        gate_session_hours=max(1, session_hours),
     )
 
 

@@ -65,6 +65,10 @@ CREATE TABLE IF NOT EXISTS episodes (
   renditions_json TEXT NOT NULL DEFAULT '[]',
   subtitles_json TEXT NOT NULL DEFAULT '[]',
   browser_playable INTEGER NOT NULL DEFAULT 1,
+  video_codec TEXT NOT NULL DEFAULT '',
+  playback_block TEXT NOT NULL DEFAULT '',
+  served_size INTEGER,
+  served_mtime_ns INTEGER,
   play_count INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
@@ -133,6 +137,17 @@ CREATE TABLE IF NOT EXISTS audit (
   detail TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS gate_sessions (
+  token_hash TEXT PRIMARY KEY,
+  expires_at TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS gate_attempts (
+  id INTEGER PRIMARY KEY,
+  bucket TEXT NOT NULL,
+  failed_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS gate_attempts_lookup ON gate_attempts (bucket, failed_at);
 """
 
 
@@ -171,9 +186,26 @@ def init_db(settings: Settings) -> None:
     conn = connect(settings)
     try:
         conn.executescript(SCHEMA)
+        _migrate(conn)
         conn.commit()
     finally:
         conn.close()
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+    if "episodes" not in tables:
+        return
+    present = {row[1] for row in conn.execute("PRAGMA table_info(episodes)")}
+    additions = {
+        "video_codec": "TEXT NOT NULL DEFAULT ''",
+        "playback_block": "TEXT NOT NULL DEFAULT ''",
+        "served_size": "INTEGER",
+        "served_mtime_ns": "INTEGER",
+    }
+    for name, declaration in additions.items():
+        if name not in present:
+            conn.execute(f"ALTER TABLE episodes ADD COLUMN {name} {declaration}")
 
 
 def ensure_secret(settings: Settings) -> Settings:
