@@ -1,0 +1,14 @@
+[Unit]
+Description=LeapDrama customer demo
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=__APP_ROOT__
+ExecStart=__APP_ROOT__/scripts/serve.sh
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target
