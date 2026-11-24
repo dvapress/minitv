@@ -19,7 +19,7 @@ import {
   IconStar,
 } from "../icons";
 import { EpisodeView } from "../player/EpisodeView";
-import type { PlayEpisode, PlayPayload } from "../types";
+import type { DramaCard, HomePayload, PlayEpisode, PlayPayload } from "../types";
 import { CommentSheet } from "../ui/CommentSheet";
 import { PremiumSheet } from "../ui/PremiumSheet";
 import { toast } from "../ui/toast";
@@ -29,6 +29,7 @@ interface Props {
   dramaId: number;
   locale: Locale;
   onBack: () => void;
+  onOpenDrama: (dramaId: number) => void;
   onOpenRewards: () => void;
 }
 
@@ -36,9 +37,12 @@ const RANGE = 30;
 const SPEED_OPTIONS = [0.75, 1.0, 1.25, 1.5, 2.0];
 
 /** The drama's own page: every episode, opened at the resume point. Finishing one jumps to the next. */
-export function PlayPage({ dramaId, locale, onBack, onOpenRewards }: Props) {
+export function PlayPage({ dramaId, locale, onBack, onOpenDrama, onOpenRewards }: Props) {
   const { requireAuth, user, refresh } = useAuth();
   const [payload, setPayload] = useState<PlayPayload | null>(null);
+  const [related, setRelated] = useState<DramaCard[]>([]);
+  const [asideTab, setAsideTab] = useState<"episodes" | "related">("episodes");
+  const [subtitlesOn, setSubtitlesOn] = useState<boolean>(() => localStorage.getItem("minitv_cc") !== "off");
   const [error, setError] = useState(false);
   const [index, setIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
@@ -93,6 +97,39 @@ export function PlayPage({ dramaId, locale, onBack, onOpenRewards }: Props) {
   };
 
   useEffect(load, [dramaId]);
+
+  useEffect(() => {
+    getJson<HomePayload>("/v1/home/groups")
+      .then((home) => {
+        const seen = new Set<number>([dramaId]);
+        const list: DramaCard[] = [];
+        for (const g of home.groups) {
+          for (const d of g.dramas) {
+            if (!seen.has(d.id)) {
+              seen.add(d.id);
+              list.push(d);
+            }
+          }
+        }
+        setRelated(list.slice(0, 12));
+      })
+      .catch(() => undefined);
+  }, [dramaId]);
+
+  const toggleSubtitles = () => {
+    const next = !subtitlesOn;
+    setSubtitlesOn(next);
+    localStorage.setItem("minitv_cc", next ? "on" : "off");
+    toast(next ? t(locale, "subtitles_on") : t(locale, "subtitles_off"));
+  };
+
+  const shareCurrent = () => {
+    if (navigator.share) {
+      navigator.share({ title: payload?.drama.title || "MiniTV", url: window.location.href }).catch(() => undefined);
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href).then(() => toast(t(locale, "link_copied"))).catch(() => undefined);
+    }
+  };
 
   const openUnlock = (episode: PlayEpisode) =>
     requireAuth(() => {
@@ -186,16 +223,18 @@ export function PlayPage({ dramaId, locale, onBack, onOpenRewards }: Props) {
   };
 
   return (
-    <div
-      className={current.locked ? "play locked-view" : "play"}
-      onTouchStart={(event) => { startY.current = event.touches[0].clientY; }}
-      onTouchEnd={(event) => {
-        if (sheet) return;
-        const delta = startY.current - event.changedTouches[0].clientY;
-        if (Math.abs(delta) < 40) return;
-        go(delta > 0 ? index + 1 : index - 1);
-      }}
-    >
+    <div className="play-shell">
+      <div className="play-main">
+        <div
+          className={current.locked ? "play locked-view" : "play"}
+          onTouchStart={(event) => { startY.current = event.touches[0].clientY; }}
+          onTouchEnd={(event) => {
+            if (sheet) return;
+            const delta = startY.current - event.changedTouches[0].clientY;
+            if (Math.abs(delta) < 40) return;
+            go(delta > 0 ? index + 1 : index - 1);
+          }}
+        >
       <div className="snap" style={{ transform: `translateY(-${index * 100}%)` }}>
         {payload.items.map((episode, position) => (
           <div className="slot" key={episode.id}>
@@ -281,13 +320,7 @@ export function PlayPage({ dramaId, locale, onBack, onOpenRewards }: Props) {
         <button
           type="button"
           className="rail-btn"
-          onClick={() => {
-            if (navigator.share) {
-              navigator.share({ title: payload.drama.title, url: window.location.href }).catch(() => undefined);
-            } else if (navigator.clipboard) {
-              navigator.clipboard.writeText(window.location.href).catch(() => undefined);
-            }
-          }}
+          onClick={shareCurrent}
           aria-label={t(locale, "share")}
         >
           <span className="rail-icon"><IconShare size={30} /></span>
@@ -369,6 +402,122 @@ export function PlayPage({ dramaId, locale, onBack, onOpenRewards }: Props) {
           onClose={() => setPremiumOpen(false)}
         />
       )}
+        </div>
+        <div className="play-desktop-controls">
+          <div className="pdc-group">
+            <button type="button" className="pdc-btn" disabled={index <= 0} onClick={() => go(index - 1)}>
+              ← {t(locale, "prev_ep")}
+            </button>
+            <span className="pdc-ep">{t(locale, "episode_short", { number: current.episode_number })} / {payload.items.length}</span>
+            <button type="button" className="pdc-btn" disabled={index >= payload.items.length - 1} onClick={() => go(index + 1)}>
+              {t(locale, "next_ep")} →
+            </button>
+          </div>
+          <div className="pdc-group">
+            <button type="button" className="pdc-btn" onClick={() => setSheet("settings")}>
+              {speed}x · {quality}
+            </button>
+            <button type="button" className={subtitlesOn ? "pdc-btn on" : "pdc-btn"} onClick={toggleSubtitles}>
+              {subtitlesOn ? t(locale, "subtitles_on") : t(locale, "subtitles_off")}
+            </button>
+            <button type="button" className={liked ? "pdc-btn on" : "pdc-btn"} onClick={() => toggleReaction("like")}>
+              ♥ {formatCount(likeCount, locale)}
+            </button>
+            <button type="button" className={favorited ? "pdc-btn on" : "pdc-btn"} onClick={() => toggleReaction("favorite")}>
+              ★ {t(locale, "favorite")}
+            </button>
+            <button type="button" className="pdc-btn" onClick={() => setSheet("comments")}>
+              💬 {commentCount}
+            </button>
+            <button type="button" className="pdc-btn" onClick={shareCurrent}>
+              ↗ {t(locale, "share")}
+            </button>
+            <button type="button" className="pdc-btn" onClick={() => { toast(t(locale, "tip_coming")); onOpenRewards(); }}>
+              ✦ {t(locale, "tip_cta")}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <aside className="play-aside">
+        <div className="pa-header">
+          <div className="pa-badges">
+            <span className="chip chip-free">{t(locale, "free_two_eps")}</span>
+            <span className="chip chip-rule">{t(locale, "short_ep_rule")}</span>
+          </div>
+          <h2 className="pa-title">{payload.drama.title}</h2>
+          {payload.drama.tags.length > 0 && (
+            <div className="pa-tags">
+              {payload.drama.tags.map((tag) => <span key={tag} className="pa-tag">#{tag}</span>)}
+            </div>
+          )}
+          {payload.drama.synopsis && <p className="pa-syn">{payload.drama.synopsis}</p>}
+        </div>
+
+        <div className="pa-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={asideTab === "episodes"}
+            className={asideTab === "episodes" ? "pa-tab on" : "pa-tab"}
+            onClick={() => setAsideTab("episodes")}
+          >
+            {t(locale, "episodes_tab")} ({payload.items.length})
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={asideTab === "related"}
+            className={asideTab === "related" ? "pa-tab on" : "pa-tab"}
+            onClick={() => setAsideTab("related")}
+          >
+            {t(locale, "related_tab")} ({related.length})
+          </button>
+        </div>
+
+        {asideTab === "episodes" ? (
+          <div className="pa-ep-grid">
+            {payload.items.map((ep, pos) => {
+              const isCurrent = pos === index;
+              return (
+                <button
+                  key={ep.id}
+                  type="button"
+                  className={`pa-ep-btn${isCurrent ? " on" : ""}${ep.locked ? " locked" : ""}`}
+                  onClick={() => go(pos)}
+                >
+                  <span>{ep.episode_number}</span>
+                  {ep.locked ? (
+                    <span className="pa-ep-badge lock"><IconLock size={10} /></span>
+                  ) : ep.episode_number <= 2 ? (
+                    <span className="pa-ep-badge free">FREE</span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="pa-related-list">
+            {related.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className="pa-rel-card"
+                onClick={() => onOpenDrama(item.id)}
+              >
+                {item.cover_url && <img className="pa-rel-cover" src={item.cover_url} alt="" loading="lazy" />}
+                <div className="pa-rel-info">
+                  <p className="pa-rel-title">{item.title}</p>
+                  <span className="pa-rel-meta">
+                    {t(locale, "free_two_eps")}
+                    {item.play_count ? ` · ${formatCount(item.play_count, locale)}` : ""}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </aside>
     </div>
   );
 }

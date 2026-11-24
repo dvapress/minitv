@@ -34,12 +34,33 @@ export function App() {
   );
 }
 
+type Theme = "dark" | "light";
+const THEME_KEY = "minitv_h5_theme";
+const REGION_KEY = "minitv_h5_region";
+const REGIONS = ["GLOBAL", "US", "JP", "TW", "SG"] as const;
+
 function AppShell() {
-  const { loginOpen, refresh } = useAuth();
+  const { loginOpen, refresh, user, openLogin } = useAuth();
   const [locale, setLocale] = useState<Locale>(loadLocale);
+  const [theme, setTheme] = useState<Theme>(() =>
+    localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark",
+  );
+  const [region, setRegion] = useState<string>(() => localStorage.getItem(REGION_KEY) || "GLOBAL");
   const [tab, setTab] = useState<Tab>("home");
   const [dramaId, setDramaId] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+
+  const changeRegion = (next: string) => {
+    setRegion(next);
+    localStorage.setItem(REGION_KEY, next);
+  };
 
   // Stripe sends the browser back here after Checkout. Clean the flag out of the
   // URL and re-read /v1/me so the "Premium active" strip appears immediately.
@@ -67,33 +88,117 @@ function AppShell() {
 
   const playing = dramaId != null;
 
+  const goTab = (next: Tab) => {
+    setDramaId(null);
+    setSearching(false);
+    setTab(next);
+  };
+
   return (
-    <div className="app" id="app">
-      {!playing && tab !== "me" && (
-        <header className="topbar">
-          {searching ? null : tab === "home" ? (
-            <div className="brand" role="heading" aria-level={1}>
+    <div className={playing ? "app is-playing" : "app"} id="app">
+      <header className={!playing && tab !== "me" ? "topbar" : "topbar desktop-only-bar"}>
+        <div className="topbar-inner">
+          {searching ? null : tab === "home" || playing || tab === "me" ? (
+            <button type="button" className="brand" onClick={() => goTab("home")}>
               <span className="brand-m">M</span>
               <span className="brand-rest">iniTV</span>
-            </div>
+            </button>
           ) : (
-            <h1>{t(locale, TABS.find((item) => item.id === tab)!.key)}</h1>
+            <>
+              <button type="button" className="brand desktop-brand" onClick={() => goTab("home")}>
+                <span className="brand-m">M</span>
+                <span className="brand-rest">iniTV</span>
+              </button>
+              <h1 className="mobile-title">{t(locale, TABS.find((item) => item.id === tab)!.key)}</h1>
+            </>
           )}
+
+          <nav className="desktop-nav" aria-label="Primary">
+            {TABS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={!playing && !searching && tab === item.id ? "desktop-nav-link on" : "desktop-nav-link"}
+                onClick={() => goTab(item.id)}
+              >
+                {t(locale, item.key)}
+              </button>
+            ))}
+            <a className="desktop-nav-link creator-link" href="/admin/" target="_blank" rel="noopener noreferrer">
+              {t(locale, "creator_studio")} ↗
+            </a>
+          </nav>
+
           <span style={{ flex: 1 }} />
-          <button className="icon-btn" onClick={switchLocale}>{locale === "zh" ? "EN" : "中"}</button>
+
           {!searching && (
-            <button className="icon-btn search-btn" onClick={() => setSearching(true)} aria-label={t(locale, "search")}>
+            <button
+              type="button"
+              className="desktop-search-pill"
+              onClick={() => { setDramaId(null); setSearching(true); }}
+              aria-label={t(locale, "search")}
+            >
+              <IconSearch />
+              <span>{t(locale, "search")}</span>
+            </button>
+          )}
+
+          <label className="region-select-wrap" aria-label={t(locale, "region_label")}>
+            <select
+              className="region-select"
+              value={region}
+              onChange={(e) => changeRegion(e.target.value)}
+            >
+              {REGIONS.map((code) => (
+                <option key={code} value={code}>{code}</option>
+              ))}
+            </select>
+          </label>
+
+          <button
+            type="button"
+            className="icon-btn theme-btn"
+            onClick={toggleTheme}
+            title={theme === "dark" ? t(locale, "theme_light") : t(locale, "theme_dark")}
+            aria-label={theme === "dark" ? t(locale, "theme_light") : t(locale, "theme_dark")}
+          >
+            {theme === "dark" ? "☀" : "☾"}
+          </button>
+
+          <button type="button" className="icon-btn" onClick={switchLocale} title="Language">
+            {locale === "zh" ? "EN" : "中"}
+          </button>
+
+          {!searching && (
+            <button
+              type="button"
+              className="icon-btn search-btn mobile-search-btn"
+              onClick={() => { setDramaId(null); setSearching(true); }}
+              aria-label={t(locale, "search")}
+            >
               <IconSearch />
             </button>
           )}
-        </header>
-      )}
+
+          {user ? (
+            <button type="button" className="desktop-user-pill" onClick={() => goTab("me")}>
+              <span className="desktop-user-coins">{user.coins}</span>
+              <span>{user.display_name || user.email?.split("@")[0] || t(locale, "nav.me")}</span>
+            </button>
+          ) : (
+            <button type="button" className="desktop-signin-btn" onClick={openLogin}>
+              {t(locale, "sign_in")} / {t(locale, "vip_cta")}
+            </button>
+          )}
+        </div>
+      </header>
       <main className={playing || tab === "foryou" ? "stage bleed" : "stage"}>
         {playing ? (
           <PlayPage
             dramaId={dramaId}
             locale={locale}
             onBack={() => setDramaId(null)}
+            onOpenDrama={setDramaId}
             onOpenRewards={() => { setDramaId(null); setTab("rewards"); }}
           />
         ) : searching ? (

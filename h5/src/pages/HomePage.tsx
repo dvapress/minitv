@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getJson } from "../api";
 import type { Locale } from "../copy";
 import { t, floorName } from "../copy";
@@ -11,7 +11,7 @@ import {
   IconPlaySmall,
   IconSparkle,
 } from "../icons";
-import type { Banner, ChannelTab, ConfigPayload, DramaCard, HomeGroup, HomePayload } from "../types";
+import type { Banner, ChannelTab, ConfigPayload, DramaCard, FeedDrama, HomeGroup, HomePayload } from "../types";
 
 interface Props {
   locale: Locale;
@@ -31,33 +31,40 @@ const DEFAULT_TAB: ChannelTab = {
   group_id: null,
 };
 
-/** No banner configured: promote the first drama of the first floor instead. */
+/** No banner configured: promote up to 4 unique dramas from the floors into a real carousel. */
 function heroFromGroups(groups: HomeGroup[], locale: Locale): Banner[] {
+  const seen = new Set<number>();
+  const out: Banner[] = [];
   for (const group of groups) {
-    const [first] = group.dramas;
-    if (first?.cover_url) {
-      return [{
-        id: -first.id,
-        drama_id: first.id,
+    for (const item of group.dramas) {
+      if (!item?.cover_url || seen.has(item.id)) continue;
+      seen.add(item.id);
+      out.push({
+        id: -item.id,
+        drama_id: item.id,
         slot: "hero",
-        title: first.title,
-        cover_url: first.cover_url,
+        title: item.title,
+        cover_url: item.cover_url,
         kicker: floorName(group.name, locale),
-        headline: first.title,
-      }];
+        headline: item.title,
+      });
+      if (out.length >= 4) return out;
     }
   }
-  return [];
+  return out;
 }
 
 export function HomePage({ locale, onOpen }: Props) {
   const [tabs, setTabs] = useState<ChannelTab[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [groups, setGroups] = useState<HomeGroup[]>([]);
+  const [feedItems, setFeedItems] = useState<FeedDrama[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string>("");
   const [tabIndex, setTabIndex] = useState(0);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [group, setGroup] = useState<HomeGroup | null>(null);
+  const [legalModal, setLegalModal] = useState<"terms" | "copyright" | "regional" | null>(null);
 
   const load = () => {
     setLoading(true);
@@ -65,11 +72,13 @@ export function HomePage({ locale, onOpen }: Props) {
     Promise.all([
       getJson<ConfigPayload>(`/v1/config?locale=${locale}`),
       getJson<HomePayload>("/v1/home/groups"),
+      getJson<{ items?: FeedDrama[] }>("/v1/feed").catch(() => ({ items: [] })),
     ])
-      .then(([config, home]) => {
+      .then(([config, home, feed]) => {
         setTabs(config.tabs);
         setBanners(home.banners);
         setGroups(home.groups);
+        setFeedItems(feed.items ?? []);
         setTabIndex((i) => (i >= config.tabs.length ? 0 : i));
       })
       .catch(() => setError(true))
@@ -100,6 +109,16 @@ export function HomePage({ locale, onOpen }: Props) {
   const hasContent = banners.length > 0 || groups.some((group) => group.dramas.length > 0);
   const hero = banners.length > 0 ? banners : heroFromGroups(groups, locale);
 
+  const allTags = Array.from(
+    new Set(feedItems.flatMap((d) => d.tags || []).filter(Boolean)),
+  ).slice(0, 10);
+
+  const filteredDramas: DramaCard[] = selectedTag
+    ? feedItems
+        .filter((d) => (d.tags || []).includes(selectedTag))
+        .map((d) => ({ id: d.id, title: d.title, cover_url: d.cover_url, play_count: d.play_count }))
+    : [];
+
   return (
     <div className="home-page">
       <div className="channel-wrap">
@@ -112,7 +131,7 @@ export function HomePage({ locale, onOpen }: Props) {
                 role="tab"
                 aria-selected={active}
                 className={active ? "channel-tab on" : "channel-tab"}
-                onClick={() => setTabIndex(index)}
+                onClick={() => { setTabIndex(index); setSelectedTag(""); }}
               >
                 <span>{locale === "zh" && item.title_zh ? item.title_zh : item.title_en}</span>
                 {active && <span className="channel-indicator" />}
@@ -120,15 +139,99 @@ export function HomePage({ locale, onOpen }: Props) {
             );
           })}
         </div>
+        {allTags.length > 0 && discover && (
+          <div className="cat-chips" role="group" aria-label="Categories">
+            <button
+              type="button"
+              className={selectedTag === "" ? "cat-chip on" : "cat-chip"}
+              onClick={() => setSelectedTag("")}
+            >
+              {t(locale, "cat_all")}
+            </button>
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                className={selectedTag === tag ? "cat-chip on" : "cat-chip"}
+                onClick={() => setSelectedTag(tag === selectedTag ? "" : tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       {!hasContent ? (
         <div className="center" style={{ height: "60vh" }}>{t(locale, "empty")}</div>
+      ) : selectedTag ? (
+        <div className="cat-results">
+          <PosterGrid dramas={filteredDramas} onOpen={onOpen} />
+        </div>
       ) : discover ? (
         <Discover banners={hero} groups={groups} locale={locale} onOpen={onOpen} onMore={setGroup} />
       ) : bound ? (
         <PosterGrid dramas={bound.dramas} onOpen={onOpen} />
       ) : (
         <div className="center" style={{ height: "50vh" }}>{t(locale, "empty")}</div>
+      )}
+
+      <footer className="site-footer">
+        <div className="site-footer-top">
+          <div className="site-footer-brand">
+            <span className="brand-m">M</span>
+            <span className="brand-rest">iniTV</span>
+          </div>
+          <p className="site-footer-tag">{t(locale, "footer_tagline")}</p>
+        </div>
+        <div className="site-footer-links">
+          <a href="/site/privacy.html" target="_blank" rel="noopener noreferrer">{t(locale, "footer_privacy")}</a>
+          <button type="button" onClick={() => setLegalModal("terms")}>{t(locale, "footer_terms")}</button>
+          <button type="button" onClick={() => setLegalModal("copyright")}>{t(locale, "footer_copyright")}</button>
+          <button type="button" onClick={() => setLegalModal("regional")}>{t(locale, "footer_regional")}</button>
+          <a href="/admin/" target="_blank" rel="noopener noreferrer">{t(locale, "creator_studio")} ↗</a>
+        </div>
+        <p className="site-footer-copy">© 2026 MiniTV · LeapDrama Global</p>
+      </footer>
+
+      {legalModal && (
+        <>
+          <button className="sheet-mask" onClick={() => setLegalModal(null)} aria-label={t(locale, "close")} />
+          <div className="sheet legal-sheet" role="dialog" aria-modal="true">
+            <div className="sheet-head">
+              <h3>
+                {legalModal === "terms"
+                  ? t(locale, "footer_terms")
+                  : legalModal === "copyright"
+                  ? t(locale, "footer_copyright")
+                  : t(locale, "footer_regional")}
+              </h3>
+              <button className="icon-btn" onClick={() => setLegalModal(null)} aria-label={t(locale, "close")}>✕</button>
+            </div>
+            <div className="legal-body">
+              {legalModal === "terms" && (
+                <p>
+                  {locale === "zh"
+                    ? "本平台提供竖屏微短剧及漫剧在线点播服务。每部剧集前 2 集免费试看，单集时长不超过 3 分钟；后续剧集可通过金币或会员权益解锁。"
+                    : "This platform provides vertical micro-drama streaming. The first 2 episodes of each series are free (up to 3 minutes per episode); subsequent episodes unlock via coins or membership."}
+                </p>
+              )}
+              {legalModal === "copyright" && (
+                <p>
+                  {locale === "zh"
+                    ? "平台展示的所有短剧、漫剧、封面与字幕内容均受版权保护，未经授权禁止录制、搬运或用于商业再分发。"
+                    : "All dramas, covers, and subtitles are protected by copyright. Unauthorized recording, redistribution, or commercial reuse is prohibited."}
+                </p>
+              )}
+              {legalModal === "regional" && (
+                <>
+                  <p><strong>繁體中文：</strong>本服務遵循您所在地區之數位內容與隱私保護規範，繁體中文介面即將全面開放。</p>
+                  <p><strong>日本語：</strong>本サービスは各地域のデジタルコンテンツ配信および個人情報保護法に準拠しています。日本語UIは順次対応予定です。</p>
+                  <p><strong>English (Global):</strong> Regional availability, pricing, and content ratings follow local regulations.</p>
+                </>
+              )}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
@@ -169,13 +272,38 @@ function Discover({
 
 function BannerCarousel({ banners, locale, onOpen }: { banners: Banner[]; locale: Locale; onOpen: (id: number) => void }) {
   const [page, setPage] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const goTo = (next: number) => {
+    const count = banners.length;
+    if (count <= 1) return;
+    const target = ((next % count) + count) % count;
+    setPage(target);
+    const el = trackRef.current;
+    if (el) el.scrollTo({ left: target * el.clientWidth, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const timer = window.setInterval(() => {
+      setPage((prev) => {
+        const next = (prev + 1) % banners.length;
+        const el = trackRef.current;
+        if (el) el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
+        return next;
+      });
+    }, 6000);
+    return () => window.clearInterval(timer);
+  }, [banners.length]);
+
   return (
     <div className="banner">
       <div
+        ref={trackRef}
         className="banner-track"
         onScroll={(event) => {
           const el = event.currentTarget;
-          setPage(Math.round(el.scrollLeft / el.clientWidth));
+          if (el.clientWidth > 0) setPage(Math.round(el.scrollLeft / el.clientWidth));
         }}
       >
         {banners.map((banner, index) => (
@@ -208,6 +336,8 @@ function BannerCarousel({ banners, locale, onOpen }: { banners: Banner[]; locale
                   <IconSparkle size={10} />
                   <span>{t(locale, "exclusive")}</span>
                 </span>
+                <span className="chip chip-free">{t(locale, "free_two_eps")}</span>
+                <span className="chip chip-rule">{t(locale, "short_ep_rule")}</span>
               </div>
               {banner.kicker && <p className="kicker">{banner.kicker}</p>}
               <div className="banner-title-row">
@@ -222,9 +352,21 @@ function BannerCarousel({ banners, locale, onOpen }: { banners: Banner[]; locale
         ))}
       </div>
       {banners.length > 1 && (
-        <div className="dots" aria-hidden="true">
-          {banners.map((banner, index) => <i key={banner.id} className={index === page ? "on" : ""} />)}
-        </div>
+        <>
+          <button type="button" className="banner-arrow prev" onClick={(e) => { e.stopPropagation(); goTo(page - 1); }} aria-label="Previous">‹</button>
+          <button type="button" className="banner-arrow next" onClick={(e) => { e.stopPropagation(); goTo(page + 1); }} aria-label="Next">›</button>
+          <div className="dots">
+            {banners.map((banner, index) => (
+              <button
+                key={banner.id}
+                type="button"
+                className={index === page ? "dot-btn on" : "dot-btn"}
+                onClick={() => goTo(index)}
+                aria-label={`Slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
