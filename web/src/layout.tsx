@@ -1,9 +1,8 @@
-/** Full web app (the H5 build on its own domain). Anything that leaves the
- * marketing site goes through this constant so the URL is never typed twice. */
-export const WEB_APP_URL = "https://h5.minitv.us";
+/** Full web app (H5 build). Defaults to same-origin "/" and can be overridden via VITE_WEB_APP_URL. */
+export const WEB_APP_URL = import.meta.env.VITE_WEB_APP_URL ?? "/";
 
-/** Operator console. Linked from the footer so the public nav stays clean. */
-export const ADMIN_URL = "https://admin.minitv.us";
+/** Operator console. Defaults to same-origin "/admin/" and can be overridden via VITE_ADMIN_URL. */
+export const ADMIN_URL = import.meta.env.VITE_ADMIN_URL ?? "/admin/";
 
 type NavItem = { label: string; href: string; external?: boolean };
 
