@@ -36,8 +36,6 @@ export function App() {
 
 type Theme = "dark" | "light";
 const THEME_KEY = "leapdrama_theme";
-const REGION_KEY = "leapdrama_region";
-const REGIONS = ["GLOBAL", "US", "JP", "TW", "SG"] as const;
 
 function AppShell() {
   const { loginOpen, refresh, user, openLogin } = useAuth();
@@ -45,7 +43,6 @@ function AppShell() {
   const [theme, setTheme] = useState<Theme>(() =>
     localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark",
   );
-  const [region, setRegion] = useState<string>(() => localStorage.getItem(REGION_KEY) || "GLOBAL");
   const [tab, setTab] = useState<Tab>("home");
   const [dramaId, setDramaId] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
@@ -56,11 +53,6 @@ function AppShell() {
   }, [theme]);
 
   const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-
-  const changeRegion = (next: string) => {
-    setRegion(next);
-    localStorage.setItem(REGION_KEY, next);
-  };
 
   // Stripe sends the browser back here after Checkout. Clean the flag out of the
   // URL and re-read /v1/me so the "Premium active" strip appears immediately.
@@ -145,18 +137,6 @@ function AppShell() {
               <span>{t(locale, "search")}</span>
             </button>
           )}
-
-          <label className="region-select-wrap" aria-label={t(locale, "region_label")}>
-            <select
-              className="region-select"
-              value={region}
-              onChange={(e) => changeRegion(e.target.value)}
-            >
-              {REGIONS.map((code) => (
-                <option key={code} value={code}>{code}</option>
-              ))}
-            </select>
-          </label>
 
           <button
             type="button"
