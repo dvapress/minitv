@@ -230,7 +230,7 @@
           langBtn.textContent = l === "zh" ? "EN" : "中";
         }
 
-        applyTheme(localStorage.getItem("leapdrama_theme") === "light" ? "light" : "dark");
+        applyTheme(localStorage.getItem("leapdrama_theme") === "dark" ? "dark" : "light");
         applyLang(localStorage.getItem("leapdrama_locale") === "zh" ? "zh" : "en");
 
         themeBtn.addEventListener("click", function () {

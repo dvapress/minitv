@@ -41,7 +41,7 @@ function AppShell() {
   const { loginOpen, refresh, user, openLogin } = useAuth();
   const [locale, setLocale] = useState<Locale>(loadLocale);
   const [theme, setTheme] = useState<Theme>(() =>
-    localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark",
+    localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light",
   );
   const [tab, setTab] = useState<Tab>("home");
   const [dramaId, setDramaId] = useState<number | null>(null);

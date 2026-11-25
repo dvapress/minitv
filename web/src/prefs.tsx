@@ -17,7 +17,7 @@ interface PrefsContextValue {
 const PrefsContext = createContext<PrefsContextValue>({
   locale: "en",
   toggleLocale: () => undefined,
-  theme: "dark",
+  theme: "light",
   toggleTheme: () => undefined,
   t: (en) => en,
 });
@@ -27,7 +27,7 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
     localStorage.getItem(LOCALE_KEY) === "zh" ? "zh" : "en",
   );
   const [theme, setTheme] = useState<Theme>(() =>
-    localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark",
+    localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light",
   );
 
   useEffect(() => {
