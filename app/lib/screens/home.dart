@@ -85,21 +85,35 @@ class _HomeScreenState extends State<HomeScreen> {
     ));
   }
 
+  static const List<Map<String, dynamic>> _defaultTabs = [
+    {
+      'code': 'discover',
+      'title_en': 'Discover',
+      'title_zh': '发现',
+      'position': 0,
+      'locked': true,
+      'group_id': null,
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     final copy = Copy(widget.language);
     if (loading) return const _HomeSkeleton();
     if (error != null) return RetryBody(label: copy.t('retry'), onRetry: load);
-    if (tabs.isEmpty) {
+    final hasContent = banners.isNotEmpty || groups.any((g) => ((g['dramas'] as List?) ?? []).isNotEmpty);
+    if (!hasContent) {
       return Center(child: Text(copy.t('empty'), style: const TextStyle(color: Colors.white70)));
     }
-    final tab = tabs[tabIndex];
-    final isDiscover = tab['locked'] == true || tabIndex == 0;
+    final shownTabs = tabs.isNotEmpty ? tabs : _defaultTabs;
+    final safeIndex = tabIndex < shownTabs.length ? tabIndex : 0;
+    final tab = shownTabs[safeIndex];
+    final isDiscover = tab['locked'] == true || safeIndex == 0;
     return Column(
       children: [
         _TabStrip(
-          tabs: tabs,
-          index: tabIndex,
+          tabs: shownTabs,
+          index: safeIndex,
           title: tabTitle,
           onSelect: (i) => setState(() => tabIndex = i),
         ),
