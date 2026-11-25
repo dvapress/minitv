@@ -224,9 +224,9 @@ export function HomePage({ locale, onOpen }: Props) {
               )}
               {legalModal === "regional" && (
                 <>
-                  <p><strong>繁體中文：</strong>本服務遵循您所在地區之數位內容與隱私保護規範，繁體中文介面即將全面開放。</p>
-                  <p><strong>日本語：</strong>本サービスは各地域のデジタルコンテンツ配信および個人情報保護法に準拠しています。日本語UIは順次対応予定です。</p>
-                  <p><strong>English (Global):</strong> Regional availability, pricing, and content ratings follow local regulations.</p>
+                  <p><strong>简体中文：</strong>本服务遵循您所在地区的数字内容分发与隐私保护规范，支持简体中文、繁体中文与英文多语言体验。</p>
+                  <p><strong>繁體中文：</strong>本服務遵循您所在地區之數位內容分發與隱私保護規範，繁體中文介面持續完善中。</p>
+                  <p><strong>English:</strong> Regional availability, pricing, and content ratings follow local regulations across supported territories.</p>
                 </>
               )}
             </div>
