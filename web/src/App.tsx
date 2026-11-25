@@ -321,7 +321,7 @@ function HomePage() {
                     </span>
                     <span className="poster-overlay">{t("Watch free", "免费观看")}</span>
                   </span>
-                  <span className="poster-title">{drama.title}</span>
+                  <span className="poster-title">{localizeDramaTitle(drama.title, locale)}</span>
                   <span className="poster-meta">{t("Free episodes on the web", "网页免费试看")}</span>
                 </a>
               ))}

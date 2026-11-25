@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { usePrefs } from "./prefs";
+import { FooterModal, type FooterModalKind } from "./SiteModals";
 
 /** Full web app (H5 build). Defaults to same-origin "/" and can be overridden via VITE_WEB_APP_URL. */
 export const WEB_APP_URL = import.meta.env.VITE_WEB_APP_URL ?? "/";
@@ -81,6 +83,7 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   const { t } = usePrefs();
+  const [modal, setModal] = useState<FooterModalKind | null>(null);
   return (
     <footer className="site-footer">
       <div className="shell">
@@ -108,14 +111,22 @@ export function SiteFooter() {
           </div>
           <div className="footer-col">
             <h4>{t("Company", "关于")}</h4>
-            <a href="#about">{t("About", "关于我们")}</a>
-            <a href="#home">{t("Contact", "联系我们")}</a>
+            <button type="button" className="footer-link-btn" onClick={() => setModal("about")}>
+              {t("About", "关于我们")}
+            </button>
+            <button type="button" className="footer-link-btn" onClick={() => setModal("contact")}>
+              {t("Contact", "联系我们")}
+            </button>
           </div>
           <div className="footer-col">
             <h4>{t("Legal", "条款与隐私")}</h4>
-            <a href="#about">{t("Terms", "用户协议")}</a>
+            <button type="button" className="footer-link-btn" onClick={() => setModal("terms")}>
+              {t("Terms", "用户协议")}
+            </button>
             <a href="/site/privacy.html">{t("Privacy", "隐私政策")}</a>
-            <a href="/site/privacy.html#cookies">{t("Cookie Settings", "Cookie 设置")}</a>
+            <button type="button" className="footer-link-btn" onClick={() => setModal("cookies")}>
+              {t("Cookie Settings", "Cookie 设置")}
+            </button>
           </div>
         </div>
         <div className="footer-bottom">
@@ -135,6 +146,7 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
+      {modal && <FooterModal kind={modal} onClose={() => setModal(null)} />}
     </footer>
   );
 }
