@@ -485,13 +485,13 @@ export default function Rewards() {
                 width: 40,
                 height: 40,
                 borderRadius: 10,
-                background: meta.bg,
+                background: `${meta.color}1F`,
                 color: meta.color,
                 display: "grid",
                 placeItems: "center",
                 fontSize: 18,
                 flexShrink: 0,
-                border: `1px solid ${meta.color}22`,
+                border: `1px solid ${meta.color}38`,
               }}
             >
               {meta.icon}
@@ -506,9 +506,9 @@ export default function Rewards() {
                   style={{
                     fontSize: 11,
                     lineHeight: "18px",
-                    background: meta.bg,
+                    background: `${meta.color}1F`,
                     color: meta.color,
-                    fontWeight: 500,
+                    fontWeight: 600,
                   }}
                 >
                   {meta.categoryLabel}
@@ -541,12 +541,12 @@ export default function Rewards() {
                 gap: 6,
                 padding: "4px 10px",
                 borderRadius: 6,
-                background: "#f6ffed",
-                border: "1px solid #b7eb8f",
+                background: "var(--ld-ok-bg)",
+                border: "1px solid var(--ld-ok-border)",
               }}
             >
-              <DollarCircleFilled style={{ color: "#52c41a", fontSize: 15 }} />
-              <Typography.Text strong style={{ color: "#237804", fontSize: 14 }}>
+              <DollarCircleFilled style={{ color: "var(--ld-ok-sub)", fontSize: 15 }} />
+              <Typography.Text strong style={{ color: "var(--ld-ok-text)", fontSize: 14 }}>
                 +{val.toLocaleString()}
               </Typography.Text>
               <Typography.Text type="secondary" style={{ fontSize: 12 }}>
@@ -584,12 +584,12 @@ export default function Rewards() {
                 gap: 6,
                 padding: "4px 10px",
                 borderRadius: 6,
-                background: "#fffbe6",
-                border: "1px solid #ffe58f",
+                background: "var(--ld-warn-bg)",
+                border: "1px solid var(--ld-warn-border)",
               }}
             >
-              <ClockCircleOutlined style={{ color: "#faad14", fontSize: 14 }} />
-              <Typography.Text strong style={{ color: "#d48806", fontSize: 14 }}>
+              <ClockCircleOutlined style={{ color: "var(--ld-warn-sub)", fontSize: 14 }} />
+              <Typography.Text strong style={{ color: "var(--ld-warn-text)", fontSize: 14 }}>
                 +{val.toLocaleString()}
               </Typography.Text>
               <Typography.Text type="secondary" style={{ fontSize: 12 }}>
@@ -733,9 +733,8 @@ export default function Rewards() {
         variant="borderless"
         style={{
           borderRadius: 12,
-          background: "linear-gradient(180deg, #ffffff 0%, #fafafa 100%)",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-          border: "1px solid #ebebeb",
+          background: "var(--ld-surface)",
+          border: "1px solid var(--ld-border)",
         }}
         styles={{ body: { padding: "18px 24px" } }}
       >
@@ -747,22 +746,22 @@ export default function Rewards() {
                   width: 44,
                   height: 44,
                   borderRadius: 12,
-                  background: "linear-gradient(135deg, #fff1f0 0%, #ffccc7 100%)",
+                  background: "var(--ld-accent-bg)",
+                  border: "1px solid var(--ld-accent-border)",
                   display: "grid",
                   placeItems: "center",
-                  color: BRAND_RED,
+                  color: "var(--ld-accent)",
                   fontSize: 22,
-                  boxShadow: "0 2px 6px rgba(226, 75, 74, 0.15)",
                 }}
               >
                 <GiftOutlined />
               </div>
               <Space direction="vertical" size={4}>
                 <Space align="center" size={10} wrap>
-                  <Typography.Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+                  <Typography.Title level={4} style={{ margin: 0, fontWeight: 700, color: "var(--ld-text)" }}>
                     金币与任务奖励配置
                   </Typography.Title>
-                  <Tag color="red" bordered={false} style={{ fontWeight: 600 }}>
+                  <Tag color="orange" bordered={false} style={{ fontWeight: 600 }}>
                     LeapDrama 激励体系
                   </Tag>
                 </Space>
@@ -842,17 +841,17 @@ export default function Rewards() {
                 alignItems: "center",
                 gap: 10,
                 padding: "8px 12px",
-                background: "#f0f5ff",
+                background: "var(--ld-info-bg)",
                 borderRadius: 8,
-                border: "1px solid #d6e4ff",
+                border: "1px solid var(--ld-info-border)",
               }}
             >
-              <ClockCircleOutlined style={{ color: "#2f54eb", fontSize: 16 }} />
+              <ClockCircleOutlined style={{ color: "var(--ld-info-text)", fontSize: 16 }} />
               <div>
-                <Typography.Text strong style={{ fontSize: 12, color: "#1d39c4" }}>
+                <Typography.Text strong style={{ fontSize: 12, color: "var(--ld-info-text)" }}>
                   次日生效机制（PST 洛杉矶时间）
                 </Typography.Text>
-                <div style={{ fontSize: 11, color: "#597ef7" }}>
+                <div style={{ fontSize: 11, color: "var(--ld-info-sub)" }}>
                   改动均于次日 00:00 生效，避免当天重复计算
                 </div>
               </div>
@@ -866,17 +865,17 @@ export default function Rewards() {
                 alignItems: "center",
                 gap: 10,
                 padding: "8px 12px",
-                background: "#fffbe6",
+                background: "var(--ld-warn-bg)",
                 borderRadius: 8,
-                border: "1px solid #ffe58f",
+                border: "1px solid var(--ld-warn-border)",
               }}
             >
-              <CalendarOutlined style={{ color: "#d48806", fontSize: 16 }} />
+              <CalendarOutlined style={{ color: "var(--ld-warn-text)", fontSize: 16 }} />
               <div>
-                <Typography.Text strong style={{ fontSize: 12, color: "#d48806" }}>
+                <Typography.Text strong style={{ fontSize: 12, color: "var(--ld-warn-text)" }}>
                   下次生效时间：{overview?.next_effective_on ?? "-"}
                 </Typography.Text>
-                <div style={{ fontSize: 11, color: "#faad14" }}>
+                <div style={{ fontSize: 11, color: "var(--ld-warn-sub)" }}>
                   今日已领奖励保留，新数值从该日期起自动执行
                 </div>
               </div>
@@ -890,17 +889,17 @@ export default function Rewards() {
                 alignItems: "center",
                 gap: 10,
                 padding: "8px 12px",
-                background: "#f6ffed",
+                background: "var(--ld-ok-bg)",
                 borderRadius: 8,
-                border: "1px solid #b7eb8f",
+                border: "1px solid var(--ld-ok-border)",
               }}
             >
-              <SafetyCertificateOutlined style={{ color: "#389e0d", fontSize: 16 }} />
+              <SafetyCertificateOutlined style={{ color: "var(--ld-ok-text)", fontSize: 16 }} />
               <div>
-                <Typography.Text strong style={{ fontSize: 12, color: "#389e0d" }}>
+                <Typography.Text strong style={{ fontSize: 12, color: "var(--ld-ok-text)" }}>
                   审计追溯与安全保障
                 </Typography.Text>
-                <div style={{ fontSize: 11, color: "#52c41a" }}>
+                <div style={{ fontSize: 11, color: "var(--ld-ok-sub)" }}>
                   单日内多次修改以最新记录为准，全量留痕
                 </div>
               </div>
@@ -914,8 +913,7 @@ export default function Rewards() {
         variant="borderless"
         style={{
           borderRadius: 12,
-          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-          border: "1px solid #ebebeb",
+          border: "1px solid var(--ld-border)",
         }}
         title={
           <Space align="center" size={8}>
@@ -932,12 +930,12 @@ export default function Rewards() {
           checkinStats ? (
             <Space size={16} wrap>
               <div style={{ textAlign: "right" }}>
-                <span style={{ fontSize: 12, color: "#8c8c8c" }}>7天满签总计: </span>
+                <span style={{ fontSize: 12, color: "var(--ld-muted)" }}>7天满签总计: </span>
                 <Typography.Text
                   strong
                   style={{
                     fontSize: 15,
-                    color: checkinStats.sumDiff !== 0 ? BRAND_RED : "#262626",
+                    color: checkinStats.sumDiff !== 0 ? "var(--ld-accent)" : "var(--ld-text)",
                   }}
                 >
                   +{checkinStats.draftSum.toLocaleString()} 金币
@@ -1009,20 +1007,18 @@ export default function Rewards() {
                       padding: "12px 10px",
                       borderRadius: 10,
                       background: isDay7
-                        ? "linear-gradient(180deg, #fffbf0 0%, #fff7e6 100%)"
-                        : isDay3
-                        ? "#fafbfc"
-                        : "#ffffff",
+                        ? "var(--ld-day7-bg)"
+                        : "var(--ld-surface-2)",
                       border: isItemDiff
-                        ? `1.5px solid ${BRAND_RED}`
+                        ? "1.5px solid var(--ld-accent)"
                         : isDay7
-                        ? "1.5px solid #ffd591"
-                        : "1px solid #ebebeb",
+                        ? "1.5px solid var(--ld-day7-border)"
+                        : "1px solid var(--ld-border)",
                       boxShadow: isDay7
-                        ? "0 2px 10px rgba(250, 173, 20, 0.18)"
+                        ? "0 2px 10px rgba(250, 204, 21, 0.14)"
                         : isItemDiff
-                        ? "0 2px 8px rgba(226, 75, 74, 0.12)"
-                        : "0 1px 3px rgba(0,0,0,0.02)",
+                        ? "0 2px 8px rgba(249, 115, 22, 0.14)"
+                        : "none",
                       display: "flex",
                       flexDirection: "column",
                       gap: 8,
@@ -1215,7 +1211,7 @@ export default function Rewards() {
         style={{
           borderRadius: 12,
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-          border: "1px solid #ebebeb",
+          border: "1px solid var(--ld-border)",
         }}
         title={
           <Space align="center" size={8}>
@@ -1251,7 +1247,7 @@ export default function Rewards() {
         style={{
           borderRadius: 12,
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-          border: "1px solid #ebebeb",
+          border: "1px solid var(--ld-border)",
         }}
         title={
           <Space align="center" size={8}>
@@ -1360,8 +1356,8 @@ export default function Rewards() {
                       gap: 4,
                       padding: "2px 8px",
                       borderRadius: 4,
-                      background: "#f6ffed",
-                      color: "#389e0d",
+                      background: "var(--ld-ok-bg)",
+                      color: "var(--ld-ok-text)",
                       fontWeight: 600,
                       fontSize: 12,
                     }}

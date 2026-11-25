@@ -25,6 +25,7 @@ import {
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { api, clearToken, forceReauth, getToken, isDeadCredential } from "./api";
+import { useAdminTheme } from "./main";
 import { MeContext, ROLE_LABELS, type Me } from "./me";
 import Login from "./pages/Login";
 import Dramas from "./pages/Dramas";
@@ -92,6 +93,8 @@ const ITEMS: { key: string; label: string; roles?: string[] }[] = [
 ];
 
 export default function App() {
+  const { mode, toggleMode } = useAdminTheme();
+  const isDark = mode === "dark";
   const navigate = useNavigate();
   const location = useLocation();
   const token = getToken();
@@ -222,7 +225,7 @@ export default function App() {
           alignItems: "center",
           justifyContent: "center",
           gap: 12,
-          background: "#f5f6f8",
+          background: "var(--ld-bg)",
         }}
       >
         <Spin />
@@ -240,7 +243,7 @@ export default function App() {
           alignItems: "center",
           justifyContent: "center",
           padding: 16,
-          background: "#f5f6f8",
+          background: "var(--ld-bg)",
         }}
       >
         <Card style={{ maxWidth: 420, width: "100%" }}>
@@ -289,14 +292,40 @@ export default function App() {
     <>
       {!(isDesktop && siderCollapsed) && (
         <div
-          style={{ color: "#E53B3E", fontSize: 18, fontWeight: 700, padding: "20px 16px 8px" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: "18px 16px 12px",
+            borderBottom: "1px solid var(--ld-border)",
+            marginBottom: 8,
+          }}
         >
-          {me?.role === "partner" ? "LeapDrama 合作方" : "LeapDrama 后台"}
+          <span
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 8,
+              display: "grid",
+              placeItems: "center",
+              background: "linear-gradient(135deg, #FACC15 0%, #F97316 55%, #EA580C 100%)",
+              color: "#16110E",
+              fontWeight: 900,
+              fontSize: 15,
+              flexShrink: 0,
+            }}
+          >
+            L
+          </span>
+          <span style={{ color: "var(--ld-text)", fontSize: 16, fontWeight: 800, letterSpacing: "-0.01em" }}>
+            {me?.role === "partner" ? "LeapDrama 合作方" : "LeapDrama 后台"}
+          </span>
         </div>
       )}
       <Menu
         mode="inline"
-        style={{ borderInlineEnd: "none" }}
+        theme={isDark ? "dark" : "light"}
+        style={{ borderInlineEnd: "none", background: "transparent", paddingInline: 8 }}
         selectedKeys={[selected]}
         items={visibleItems}
         onClick={({ key }) => {
@@ -309,15 +338,19 @@ export default function App() {
 
   return (
     <MeContext.Provider value={me}>
-      <Layout style={{ minHeight: "100vh", background: "#f5f6f8" }}>
+      <Layout style={{ minHeight: "100vh", background: "var(--ld-bg)" }}>
         {isDesktop ? (
           <Sider
             width={SIDER_WIDTH}
             collapsedWidth={0}
             collapsed={siderCollapsed}
             trigger={null}
-            theme="light"
-            style={{ overflow: "hidden" }}
+            theme={isDark ? "dark" : "light"}
+            style={{
+              overflow: "hidden",
+              background: "var(--ld-sider)",
+              borderRight: "1px solid var(--ld-border)",
+            }}
           >
             {nav}
           </Sider>
@@ -328,21 +361,21 @@ export default function App() {
             width={SIDER_WIDTH}
             closable={false}
             onClose={() => setNavOpen(false)}
-            styles={{ body: { padding: 0 } }}
+            styles={{ body: { padding: 0, background: "var(--ld-sider)" } }}
           >
             {nav}
           </Drawer>
         )}
-        <Layout>
+        <Layout style={{ background: "var(--ld-bg)" }}>
           <Header
             style={{
-              background: "#fff",
+              background: "var(--ld-surface)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
               gap: 12,
               paddingInline: isNarrow ? 12 : 24,
-              borderBottom: "1px solid #f0f0f0",
+              borderBottom: "1px solid var(--ld-border)",
             }}
           >
             <Space size={4}>
@@ -361,11 +394,28 @@ export default function App() {
                   onClick={() => setNavOpen(true)}
                 />
               )}
-              <Typography.Text strong style={{ fontSize: 15 }}>
+              <Typography.Text strong style={{ fontSize: 15, color: "var(--ld-text)" }}>
                 {pageTitle}
               </Typography.Text>
             </Space>
             <Space size={8}>
+              {!isNarrow && (
+                <Button type="text" size="small" href="/" target="_blank" rel="noopener noreferrer">
+                  前台播放端 ↗
+                </Button>
+              )}
+              <Button
+                type="default"
+                size="small"
+                onClick={toggleMode}
+                title={isDark ? "切换浅色模式" : "切换深色模式"}
+                style={{
+                  borderRadius: 999,
+                  fontWeight: 600,
+                }}
+              >
+                {isDark ? "☀ 浅色" : "☾ 深色"}
+              </Button>
               {me && (
                 // 账号区即退出入口：头像 + 名字 + 角色，点开是「退出登录」菜单。
                 <Dropdown menu={accountMenu(me)} placement="bottomRight" trigger={["click"]}>
@@ -376,18 +426,18 @@ export default function App() {
                     style={{ paddingInline: 8, height: 40 }}
                   >
                     <Space size={8}>
-                      <Avatar size={26} style={{ background: "#E53B3E", fontSize: 13 }}>
+                      <Avatar size={26} style={{ background: "var(--ld-accent)", fontSize: 13 }}>
                         {(me.display_name || me.username).slice(0, 1)}
                       </Avatar>
-                      <Typography.Text ellipsis style={{ maxWidth: isNarrow ? 88 : 160 }}>
+                      <Typography.Text ellipsis style={{ maxWidth: isNarrow ? 88 : 160, color: "var(--ld-text)" }}>
                         {me.display_name || me.username}
                       </Typography.Text>
                       {!isNarrow && (
-                        <Tag color="red" style={{ marginInlineEnd: 0 }}>
+                        <Tag color="orange" bordered={false} style={{ marginInlineEnd: 0, fontWeight: 600 }}>
                           {ROLE_LABELS[me.role] ?? me.role}
                         </Tag>
                       )}
-                      <DownOutlined style={{ fontSize: 10, color: "rgba(0,0,0,0.45)" }} />
+                      <DownOutlined style={{ fontSize: 10, color: "var(--ld-muted)" }} />
                     </Space>
                   </Button>
                 </Dropdown>

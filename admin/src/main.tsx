@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { ConfigProvider, theme as antdTheme } from "antd";
@@ -8,8 +8,22 @@ import App from "./App";
 
 const THEME_KEY = "leapdrama_theme";
 
+export type AdminThemeMode = "dark" | "light";
+
+const AdminThemeContext = createContext<{
+  mode: AdminThemeMode;
+  toggleMode: () => void;
+}>({
+  mode: "dark",
+  toggleMode: () => {},
+});
+
+export function useAdminTheme() {
+  return useContext(AdminThemeContext);
+}
+
 function AdminRoot() {
-  const [mode, setMode] = useState<"dark" | "light">(() =>
+  const [mode, setMode] = useState<AdminThemeMode>(() =>
     localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark",
   );
 
@@ -26,58 +40,71 @@ function AdminRoot() {
   }, [mode]);
 
   const isDark = mode === "dark";
+  const toggleMode = () => setMode((m) => (m === "dark" ? "light" : "dark"));
 
   return (
-    <ConfigProvider
-      locale={zhCN}
-      theme={{
-        algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
-        token: isDark
-          ? {
-              colorPrimary: "#F97316",
-              colorInfo: "#F97316",
-              colorWarning: "#FACC15",
-              colorBgBase: "#16110E",
-              colorBgContainer: "#241C18",
-              colorTextBase: "#FDF8F6",
-              borderRadius: 8,
-            }
-          : {
-              colorPrimary: "#EA580C",
-              colorInfo: "#0D9488",
-              colorBgBase: "#FFFBF7",
-              colorBgContainer: "#FFFFFF",
-              colorTextBase: "#1C1917",
-              borderRadius: 8,
+    <AdminThemeContext.Provider value={{ mode, toggleMode }}>
+      <ConfigProvider
+        locale={zhCN}
+        theme={{
+          algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+          token: isDark
+            ? {
+                colorPrimary: "#F97316",
+                colorInfo: "#F97316",
+                colorWarning: "#FACC15",
+                colorBgBase: "#16110E",
+                colorBgLayout: "#16110E",
+                colorBgContainer: "#241C18",
+                colorBgElevated: "#2D231D",
+                colorBorder: "rgba(253, 248, 246, 0.12)",
+                colorBorderSecondary: "rgba(253, 248, 246, 0.08)",
+                colorTextBase: "#FDF8F6",
+                colorTextSecondary: "#A8A29E",
+                borderRadius: 10,
+              }
+            : {
+                colorPrimary: "#EA580C",
+                colorInfo: "#0D9488",
+                colorWarning: "#D97706",
+                colorBgBase: "#FFFBF7",
+                colorBgLayout: "#FFFBF7",
+                colorBgContainer: "#FFFFFF",
+                colorBgElevated: "#FFFFFF",
+                colorBorder: "rgba(28, 25, 23, 0.12)",
+                colorBorderSecondary: "rgba(28, 25, 23, 0.08)",
+                colorTextBase: "#1C1917",
+                colorTextSecondary: "#57534E",
+                borderRadius: 10,
+              },
+          components: {
+            Layout: {
+              bodyBg: isDark ? "#16110E" : "#FFFBF7",
+              headerBg: isDark ? "#241C18" : "#FFFFFF",
+              siderBg: isDark ? "#1D1612" : "#FFFFFF",
             },
-      }}
-    >
-      <button
-        type="button"
-        onClick={() => setMode((m) => (m === "dark" ? "light" : "dark"))}
-        title={isDark ? "切换浅色模式" : "切换深色模式"}
-        style={{
-          position: "fixed",
-          right: 18,
-          bottom: 18,
-          zIndex: 1000,
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          border: "1px solid rgba(249,115,22,0.45)",
-          background: isDark ? "#241C18" : "#FFFFFF",
-          color: isDark ? "#FACC15" : "#EA580C",
-          fontSize: 18,
-          cursor: "pointer",
-          boxShadow: "0 6px 18px rgba(0,0,0,0.28)",
+            Menu: {
+              itemBg: "transparent",
+              itemSelectedBg: isDark ? "rgba(249, 115, 22, 0.16)" : "rgba(234, 88, 12, 0.10)",
+              itemSelectedColor: isDark ? "#FB923C" : "#EA580C",
+              itemHoverBg: isDark ? "rgba(253, 248, 246, 0.06)" : "rgba(28, 25, 23, 0.04)",
+              itemBorderRadius: 8,
+            },
+            Table: {
+              headerBg: isDark ? "#2B211C" : "#FAF5F0",
+              rowHoverBg: isDark ? "rgba(249, 115, 22, 0.06)" : "#FFF7ED",
+            },
+            Card: {
+              headerBg: "transparent",
+            },
+          },
         }}
       >
-        {isDark ? "☀" : "☾"}
-      </button>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ConfigProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ConfigProvider>
+    </AdminThemeContext.Provider>
   );
 }
 

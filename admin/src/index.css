@@ -1,5 +1,73 @@
-/* Minimal global reset: antd v5 ships no page-level reset, so the browser's
-   default body margin used to leave a stray 8px ring around the admin shell. */
+:root {
+  color-scheme: dark;
+  --ld-bg: #16110e;
+  --ld-surface: #241c18;
+  --ld-surface-2: #2d231d;
+  --ld-sider: #1d1612;
+  --ld-border: rgba(253, 248, 246, 0.1);
+  --ld-border-strong: rgba(253, 248, 246, 0.18);
+  --ld-text: #fdf8f6;
+  --ld-muted: #a8a29e;
+  --ld-accent: #f97316;
+  --ld-gold: #facc15;
+
+  --ld-accent-bg: rgba(249, 115, 22, 0.14);
+  --ld-accent-border: rgba(249, 115, 22, 0.34);
+
+  --ld-info-bg: rgba(59, 130, 246, 0.12);
+  --ld-info-border: rgba(96, 165, 250, 0.28);
+  --ld-info-text: #93c5fd;
+  --ld-info-sub: #60a5fa;
+
+  --ld-warn-bg: rgba(250, 204, 21, 0.1);
+  --ld-warn-border: rgba(250, 204, 21, 0.28);
+  --ld-warn-text: #fde047;
+  --ld-warn-sub: #facc15;
+
+  --ld-ok-bg: rgba(34, 197, 94, 0.12);
+  --ld-ok-border: rgba(74, 222, 128, 0.28);
+  --ld-ok-text: #86efac;
+  --ld-ok-sub: #4ade80;
+
+  --ld-day7-bg: linear-gradient(180deg, rgba(250, 204, 21, 0.14) 0%, rgba(249, 115, 22, 0.08) 100%);
+  --ld-day7-border: rgba(250, 204, 21, 0.42);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ld-bg: #fffbf7;
+  --ld-surface: #ffffff;
+  --ld-surface-2: #f7f1eb;
+  --ld-sider: #ffffff;
+  --ld-border: rgba(28, 25, 23, 0.1);
+  --ld-border-strong: rgba(28, 25, 23, 0.18);
+  --ld-text: #1c1917;
+  --ld-muted: #57534e;
+  --ld-accent: #ea580c;
+  --ld-gold: #d97706;
+
+  --ld-accent-bg: #fff7ed;
+  --ld-accent-border: #fdba74;
+
+  --ld-info-bg: #eff6ff;
+  --ld-info-border: #bfdbfe;
+  --ld-info-text: #1d4ed8;
+  --ld-info-sub: #2563eb;
+
+  --ld-warn-bg: #fffbeb;
+  --ld-warn-border: #fde68a;
+  --ld-warn-text: #b45309;
+  --ld-warn-sub: #d97706;
+
+  --ld-ok-bg: #f0fdf4;
+  --ld-ok-border: #bbf7d0;
+  --ld-ok-text: #15803d;
+  --ld-ok-sub: #16a34a;
+
+  --ld-day7-bg: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+  --ld-day7-border: #f59e0b;
+}
+
 html,
 body,
 #root {
@@ -8,7 +76,8 @@ body,
 
 body {
   margin: 0;
-  background: #f5f6f8;
+  background: var(--ld-bg);
+  color: var(--ld-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -19,10 +88,13 @@ body {
   overscroll-behavior-x: contain;
 }
 
-/* Header labels ("免费集数", "最近更新", ...) must stay on one line: when a table
-   is squeezed they used to stack one character per row. Cells still wrap. */
 .ant-table-wrapper .ant-table-thead > tr > th {
   white-space: nowrap;
+}
+
+/* Consistent subtle borders on cards in both dark and light modes. */
+.ant-card {
+  border-color: var(--ld-border);
 }
 
 /* Episode editor: metadata first, video replace is an explicit second step. */
@@ -65,24 +137,24 @@ body {
   font-size: 13px;
   font-weight: 600;
   line-height: 22px;
-  color: #1f1f1f;
+  color: var(--ld-text);
 }
 
 .ep-req {
   margin-left: 8px;
   font-size: 12px;
   font-weight: 500;
-  color: #e53b3e;
+  color: var(--ld-accent);
 }
 
 .ep-text-btn.ant-btn {
   height: auto;
   padding: 0;
-  color: #595959;
+  color: var(--ld-muted);
 }
 
 .ep-text-btn.ant-btn:not(:disabled):hover {
-  color: #e53b3e;
+  color: var(--ld-accent);
 }
 
 .ep-fields {
@@ -102,14 +174,14 @@ body {
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
-  border: 1px solid #ececec;
+  border: 1px solid var(--ld-border);
   border-radius: 10px;
-  background: #fafafa;
+  background: var(--ld-surface-2);
 }
 
 .ep-file {
   align-items: flex-start;
-  background: #fff;
+  background: var(--ld-surface);
 }
 
 .ep-video-mark {
@@ -118,10 +190,10 @@ body {
   place-items: center;
   width: 36px;
   height: 36px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--ld-border);
   border-radius: 8px;
-  background: #fff;
-  color: #e53b3e;
+  background: var(--ld-surface);
+  color: var(--ld-accent);
   font-size: 16px;
 }
 
@@ -133,7 +205,7 @@ body {
 
 .ep-video-title,
 .ep-file-name {
-  color: #1f1f1f;
+  color: var(--ld-text);
   font-size: 14px;
   font-weight: 600;
   line-height: 1.4;
@@ -148,7 +220,7 @@ body {
 .ep-video-sub,
 .ep-file-sub {
   margin-top: 2px;
-  color: #8c8c8c;
+  color: var(--ld-muted);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -170,7 +242,7 @@ body {
 }
 
 .ep-file-actions > .ant-btn.ant-btn-text {
-  color: #8c8c8c;
+  color: var(--ld-muted);
 }
 
 .ep-note,
@@ -183,24 +255,26 @@ body {
 
 .ep-note {
   padding: 10px 12px;
-  background: #f5f7fa;
-  color: #595959;
+  background: var(--ld-surface-2);
+  color: var(--ld-muted);
 }
 
 .ep-warn {
   padding: 10px 12px;
-  background: #fff8f0;
-  color: #8a5a12;
+  background: var(--ld-warn-bg);
+  border: 1px solid var(--ld-warn-border);
+  color: var(--ld-warn-text);
 }
 
 .ep-error {
-  color: #cf1322;
+  color: #ef4444;
   font-size: 12px;
 }
 
 .ep-drop.ant-upload-wrapper .ant-upload-drag {
   border-radius: 10px;
-  background: #fafafa;
+  background: var(--ld-surface-2);
+  border-color: var(--ld-border-strong);
 }
 
 .ep-drop.ant-upload-wrapper .ant-upload-drag .ant-upload-btn {
@@ -215,19 +289,19 @@ body {
 }
 
 .ep-drop-icon {
-  color: #e53b3e;
+  color: var(--ld-accent);
   font-size: 22px;
 }
 
 .ep-drop-title {
-  color: #1f1f1f;
+  color: var(--ld-text);
   font-size: 14px;
   line-height: 1.5;
 }
 
 .ep-drop-hint {
   max-width: 420px;
-  color: #8c8c8c;
+  color: var(--ld-muted);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -254,7 +328,7 @@ body {
 
   .ep-video-actions {
     width: 100%;
-    margin-left: 0;
     justify-content: flex-end;
+    margin-left: 0;
   }
 }
