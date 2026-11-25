@@ -1,11 +1,18 @@
+import { getLocale, type Locale } from "../i18n";
+
 /** Supplier-facing lifecycle label. Approved ≠ live, so the tag must say so. */
-export function partnerStage(status: string, reviewState: string): string {
-  if (reviewState === "rejected") return "已驳回";
-  if (reviewState === "pending") return "审核中";
-  if (status === "published") return "已上架";
-  if (status === "unpublished") return "已下架";
-  if (reviewState === "approved") return "待上架";
-  return "草稿";
+export function partnerStage(
+  status: string,
+  reviewState: string,
+  locale: Locale = getLocale()
+): string {
+  const zh = locale === "zh";
+  if (reviewState === "rejected") return zh ? "已驳回" : "Rejected";
+  if (reviewState === "pending") return zh ? "审核中" : "In Review";
+  if (status === "published") return zh ? "已上架" : "Published";
+  if (status === "unpublished") return zh ? "已下架" : "Unpublished";
+  if (reviewState === "approved") return zh ? "待上架" : "Approved";
+  return zh ? "草稿" : "Draft";
 }
 
 export function partnerStageColor(status: string, reviewState: string): string | undefined {

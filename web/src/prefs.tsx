@@ -40,6 +40,19 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === LOCALE_KEY && (e.newValue === "en" || e.newValue === "zh")) {
+        setLocale(e.newValue);
+      }
+      if (e.key === THEME_KEY && (e.newValue === "light" || e.newValue === "dark")) {
+        setTheme(e.newValue);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
   const toggleLocale = () => setLocale((prev) => (prev === "zh" ? "en" : "zh"));
   const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   const t = (en: string, zh: string) => (locale === "zh" ? zh : en);

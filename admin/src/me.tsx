@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+import { getLocale, type Locale } from "./i18n";
 
 export type Me = {
   id: number;
@@ -17,12 +18,31 @@ export const ROLE_LABELS: Record<string, string> = {
   partner: "上剧方",
 };
 
+const ROLE_LABELS_EN: Record<string, string> = {
+  ops: "Ops",
+  finance: "Finance",
+  admin: "Admin",
+  partner: "Partner",
+};
+
+export function roleLabel(role: string, locale: Locale = getLocale()): string {
+  return (locale === "zh" ? ROLE_LABELS[role] : ROLE_LABELS_EN[role]) ?? role;
+}
+
 /** Staff roles only: partners are created from the supplier page, not here. */
 export const ROLE_OPTIONS = [
   { value: "ops", label: "运营" },
   { value: "finance", label: "财务" },
   { value: "admin", label: "管理员" },
 ];
+
+export function getRoleOptions(locale: Locale = getLocale()) {
+  return [
+    { value: "ops", label: roleLabel("ops", locale) },
+    { value: "finance", label: roleLabel("finance", locale) },
+    { value: "admin", label: roleLabel("admin", locale) },
+  ];
+}
 
 /**
  * Roles allowed to create / edit content. Mirrors CONTENT_WRITER_ROLES in

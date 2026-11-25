@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, Col, Row, Space, Table, Tag, Typography } from "antd";
 import { useLoad } from "../hooks";
+import { useI18n } from "../i18n";
 
 type Overview = {
   days: number;
@@ -35,6 +36,7 @@ const money = (cents: number, currency = "USD") =>
 const percent = (value: number) => `${(value * 100).toFixed(1)}%`;
 
 export default function PartnerStats() {
+  const { t } = useI18n();
   const [days, setDays] = useState(30);
   const { data: overview, loading } = useLoad<Overview>(
     `/partner/v1/stats/overview?days=${days}`,
@@ -59,13 +61,28 @@ export default function PartnerStats() {
   );
 
   const metrics = [
-    { label: "播放量", value: overview.plays, note: `${overview.completes} 次完播` },
-    { label: "完播率", value: percent(overview.completion_rate), note: "完播 / 播放" },
-    { label: "观看用户", value: overview.viewers, note: "按用户去重" },
     {
-      label: "金币解锁",
+      label: t("Plays", "播放量"),
+      value: overview.plays,
+      note: t(`${overview.completes} completions`, `${overview.completes} 次完播`),
+    },
+    {
+      label: t("Completion Rate", "完播率"),
+      value: percent(overview.completion_rate),
+      note: t("Completions / Plays", "完播 / 播放"),
+    },
+    {
+      label: t("Unique Viewers", "观看用户"),
+      value: overview.viewers,
+      note: t("Deduplicated by user", "按用户去重"),
+    },
+    {
+      label: t("Coin Unlocks", "金币解锁"),
       value: overview.unlocks,
-      note: `${overview.unlock_users} 人 · 仅内容指标`,
+      note: t(
+        `${overview.unlock_users} users · engagement metric only`,
+        `${overview.unlock_users} 人 · 仅内容指标`
+      ),
     },
   ];
 
@@ -73,7 +90,7 @@ export default function PartnerStats() {
     <Space direction="vertical" size="middle" style={{ width: "100%" }}>
       <Space wrap>
         <Typography.Title level={4} style={{ margin: 0 }}>
-          数据中心
+          {t("Analytics", "数据中心")}
         </Typography.Title>
         {[7, 30, 90].map((value) => (
           <Tag
@@ -82,11 +99,14 @@ export default function PartnerStats() {
             style={{ cursor: "pointer", padding: "2px 10px" }}
             onClick={() => setDays(value)}
           >
-            近 {value} 天
+            {t(`Last ${value}d`, `近 ${value} 天`)}
           </Tag>
         ))}
         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          金币解锁只反映内容热度，不参与分成
+          {t(
+            "Coin unlocks reflect engagement only and are excluded from revenue share",
+            "金币解锁只反映内容热度，不参与分成"
+          )}
         </Typography.Text>
       </Space>
 
@@ -112,45 +132,45 @@ export default function PartnerStats() {
         <Col xs={24} lg={8}>
           <Card size="small">
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              会员首单
+              {t("First-Time Subscriptions", "会员首单")}
             </Typography.Text>
             <Typography.Title level={3} style={{ margin: "4px 0 0" }}>
               {overview.first_orders}
             </Typography.Title>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              只算每个用户的首单
+              {t("First order per user only", "只算每个用户的首单")}
             </Typography.Text>
           </Card>
         </Col>
         <Col xs={24} lg={8}>
           <Card size="small">
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              首单金额
+              {t("Gross First-Order Amount", "首单金额")}
             </Typography.Text>
             <Typography.Title level={3} style={{ margin: "4px 0 0" }}>
               {money(overview.gross_cents, overview.currency)}
             </Typography.Title>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              不含续费与复购
+              {t("Excludes renewals & repeat purchases", "不含续费与复购")}
             </Typography.Text>
           </Card>
         </Col>
         <Col xs={24} lg={8}>
           <Card size="small">
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              预估收益 · {(overview.effective_share_bps / 100).toFixed(0)}%
+              {t("Est. Revenue", "预估收益")} · {(overview.effective_share_bps / 100).toFixed(0)}%
             </Typography.Text>
             <Typography.Title level={3} style={{ margin: "4px 0 0" }}>
               {money(overview.revenue_cents, overview.currency)}
             </Typography.Title>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              月结 · 次月出对账单
+              {t("Monthly settlement · statement issued next month", "月结 · 次月出对账单")}
             </Typography.Text>
           </Card>
         </Col>
       </Row>
 
-      <Card size="small" title="分剧数据">
+      <Card size="small" title={t("Performance by Drama", "分剧数据")}>
         <Table<DramaRow>
           rowKey="id"
           size="small"
@@ -158,25 +178,25 @@ export default function PartnerStats() {
           pagination={false}
           scroll={{ x: 820 }}
           columns={[
-            { title: "剧集", dataIndex: "title" },
-            { title: "播放", dataIndex: "plays", width: 80 },
+            { title: t("Drama", "剧集"), dataIndex: "title" },
+            { title: t("Plays", "播放"), dataIndex: "plays", width: 80 },
             {
-              title: "完播率",
+              title: t("Completion", "完播率"),
               dataIndex: "completion_rate",
-              width: 90,
+              width: 100,
               render: (value: number) => percent(value),
             },
-            { title: "观看用户", dataIndex: "viewers", width: 90 },
-            { title: "解锁", dataIndex: "unlocks", width: 70 },
-            { title: "首单", dataIndex: "first_orders", width: 70 },
+            { title: t("Viewers", "观看用户"), dataIndex: "viewers", width: 90 },
+            { title: t("Unlocks", "解锁"), dataIndex: "unlocks", width: 80 },
+            { title: t("1st Orders", "首单"), dataIndex: "first_orders", width: 90 },
             {
-              title: "首单金额",
+              title: t("Gross", "首单金额"),
               dataIndex: "gross_cents",
               width: 110,
               render: (value: number) => money(value),
             },
             {
-              title: "预估收益",
+              title: t("Est. Revenue", "预估收益"),
               dataIndex: "revenue_cents",
               width: 110,
               render: (value: number) => money(value),
@@ -186,7 +206,10 @@ export default function PartnerStats() {
       </Card>
 
       <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-        口径：首单归因（续费不计）· 退款冲减 · 币种 USD · 明细保留 90 天
+        {t(
+          "Attribution: first order only (renewals excluded) · net of refunds · USD · 90-day detail retention",
+          "口径：首单归因（续费不计）· 退款冲减 · 币种 USD · 明细保留 90 天"
+        )}
       </Typography.Text>
     </Space>
   );

@@ -1,5 +1,6 @@
 import { useCallback, useState, type ReactNode } from "react";
 import { Modal } from "antd";
+import { useI18n } from "./i18n";
 
 /**
  * 自定义确认弹框，替代 `window.confirm`。
@@ -34,6 +35,7 @@ export type ConfirmOptions = {
 };
 
 export function useConfirm() {
+  const { t } = useI18n();
   const [options, setOptions] = useState<ConfirmOptions | null>(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -72,8 +74,8 @@ export function useConfirm() {
       onCancel={() => {
         if (!loading) close();
       }}
-      okText={options?.okText ?? "确定"}
-      cancelText={options?.cancelText ?? "取消"}
+      okText={options?.okText ?? t("Confirm", "确定")}
+      cancelText={options?.cancelText ?? t("Cancel", "取消")}
       okButtonProps={{ danger: options?.danger, loading }}
       cancelButtonProps={{ disabled: loading }}
       maskClosable={!loading}

@@ -2,18 +2,22 @@ import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { ConfigProvider, theme as antdTheme } from "antd";
+import enUS from "antd/locale/en_US";
 import zhCN from "antd/locale/zh_CN";
 import "./index.css";
 import App from "./App";
+import { I18nProvider, useI18n } from "./i18n";
 
 function AdminRoot() {
+  const { locale } = useI18n();
+
   useEffect(() => {
     document.documentElement.dataset.theme = "light";
   }, []);
 
   return (
     <ConfigProvider
-      locale={zhCN}
+      locale={locale === "zh" ? zhCN : enUS}
       theme={{
         algorithm: antdTheme.defaultAlgorithm,
         token: {
@@ -62,6 +66,8 @@ function AdminRoot() {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <AdminRoot />
+    <I18nProvider>
+      <AdminRoot />
+    </I18nProvider>
   </React.StrictMode>,
 );

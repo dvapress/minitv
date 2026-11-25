@@ -14,6 +14,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { api, errorText } from "../api";
 import { formatTime } from "../hooks";
+import { useI18n } from "../i18n";
 import { partnerStage, partnerStageColor } from "./partnerStage";
 
 type Row = {
@@ -41,15 +42,16 @@ type Counts = {
 
 const EMPTY: Counts = { all: 0, draft: 0, pending: 0, approved: 0, published: 0, unpublished: 0 };
 
-const CARDS: { key: keyof Counts; label: string; color: string }[] = [
-  { key: "all", label: "全部剧集", color: "#101828" },
-  { key: "draft", label: "草稿", color: "#667085" },
-  { key: "pending", label: "审核中", color: "#B54708" },
-  { key: "approved", label: "待上架", color: "#175CD3" },
-  { key: "published", label: "已上架", color: "#067647" },
+const CARDS: { key: keyof Counts; labelEn: string; labelZh: string; color: string }[] = [
+  { key: "all", labelEn: "All Dramas", labelZh: "全部剧集", color: "#101828" },
+  { key: "draft", labelEn: "Draft", labelZh: "草稿", color: "#667085" },
+  { key: "pending", labelEn: "In Review", labelZh: "审核中", color: "#B54708" },
+  { key: "approved", labelEn: "Approved", labelZh: "待上架", color: "#175CD3" },
+  { key: "published", labelEn: "Published", labelZh: "已上架", color: "#067647" },
 ];
 
 export default function PartnerDramas() {
+  const { locale, t } = useI18n();
   const navigate = useNavigate();
   const [rows, setRows] = useState<Row[]>([]);
   const [total, setTotal] = useState(0);
@@ -96,7 +98,7 @@ export default function PartnerDramas() {
           synopsis: values.synopsis ?? "",
         }),
       });
-      message.success("已创建草稿，继续补封面和分集");
+      message.success(t("Draft created. Add a cover and episodes next.", "已创建草稿，继续补封面和分集"));
       setCreateOpen(false);
       form.resetFields();
       navigate(`/partner/dramas/${created.id}`);
@@ -135,12 +137,12 @@ export default function PartnerDramas() {
                 cursor: card.key === "all" ? "pointer" : "default",
               }}
             >
-              <div style={{ fontSize: 13, color: "#475467" }}>{card.label}</div>
+              <div style={{ fontSize: 13, color: "#475467" }}>{t(card.labelEn, card.labelZh)}</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 2 }}>
                 <span style={{ fontSize: 24, fontWeight: 700, color: card.color }}>
                   {counts[card.key]}
                 </span>
-                <span style={{ fontSize: 12, color: "#98a2b3" }}>部</span>
+                <span style={{ fontSize: 12, color: "#98a2b3" }}>{t("titles", "部")}</span>
               </div>
             </div>
           );
@@ -149,11 +151,11 @@ export default function PartnerDramas() {
 
       <Space wrap>
         <Button type="primary" onClick={() => setCreateOpen(true)}>
-          + 新建剧集
+          {t("+ New Drama", "+ 新建剧集")}
         </Button>
         <Select
           allowClear
-          placeholder="全部状态"
+          placeholder={t("All statuses", "全部状态")}
           style={{ width: 160 }}
           value={status}
           onChange={(value) => {
@@ -161,15 +163,15 @@ export default function PartnerDramas() {
             setPage(1);
           }}
           options={[
-            { value: "draft", label: "草稿" },
-            { value: "in_review", label: "审核中" },
-            { value: "published", label: "已上架" },
-            { value: "unpublished", label: "已下架" },
+            { value: "draft", label: t("Draft", "草稿") },
+            { value: "in_review", label: t("In Review", "审核中") },
+            { value: "published", label: t("Published", "已上架") },
+            { value: "unpublished", label: t("Unpublished", "已下架") },
           ]}
         />
         <Input.Search
           allowClear
-          placeholder="搜索剧名 / 剧集ID..."
+          placeholder={t("Search title / Drama ID...", "搜索剧名 / 剧集ID...")}
           style={{ width: 280 }}
           onSearch={(value) => {
             setQ(value);
@@ -177,7 +179,10 @@ export default function PartnerDramas() {
           }}
         />
         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          只显示你名下的剧集；提交审核后由 LeapDrama 运营安排上架。
+          {t(
+            "Only your dramas are shown here. After submission, LeapDrama ops will review and publish.",
+            "只显示你名下的剧集；提交审核后由 LeapDrama 运营安排上架。"
+          )}
         </Typography.Text>
       </Space>
 
@@ -198,7 +203,7 @@ export default function PartnerDramas() {
         }}
         columns={[
           {
-            title: "封面 / ID",
+            title: t("Cover / ID", "封面 / ID"),
             dataIndex: "cover_url",
             width: 110,
             render: (cover: string, row) => (
@@ -227,7 +232,7 @@ export default function PartnerDramas() {
             ),
           },
           {
-            title: "剧名",
+            title: t("Title", "剧名"),
             dataIndex: "title",
             render: (value: string, row) => (
               <div>
@@ -235,59 +240,66 @@ export default function PartnerDramas() {
                   {value}
                 </Link>
                 {row.review_note && (
-                  <div style={{ fontSize: 12, color: "#B42318" }}>驳回：{row.review_note}</div>
+                  <div style={{ fontSize: 12, color: "#B42318" }}>
+                    {t("Rejected: ", "驳回：")}
+                    {row.review_note}
+                  </div>
                 )}
               </div>
             ),
           },
           {
-            title: "状态",
+            title: t("Status", "状态"),
             key: "stage",
-            width: 100,
+            width: 110,
             render: (_, row) => (
               <Tag color={partnerStageColor(row.status, row.review_state)}>
-                {partnerStage(row.status, row.review_state)}
+                {partnerStage(row.status, row.review_state, locale)}
               </Tag>
             ),
           },
-          { title: "免费集数", dataIndex: "free_episode_count", width: 90 },
-          { title: "单集金币", dataIndex: "coin_price_per_episode", width: 90 },
-          { title: "总集数", dataIndex: "episode_count", width: 80 },
-          { title: "播放量", dataIndex: "play_count", width: 90 },
+          { title: t("Free Eps", "免费集数"), dataIndex: "free_episode_count", width: 95 },
+          { title: t("Coins / Ep", "单集金币"), dataIndex: "coin_price_per_episode", width: 95 },
+          { title: t("Episodes", "总集数"), dataIndex: "episode_count", width: 90 },
+          { title: t("Plays", "播放量"), dataIndex: "play_count", width: 90 },
           {
-            title: "最近更新",
+            title: t("Updated", "最近更新"),
             dataIndex: "updated_at",
             width: 150,
             render: (value: string) => formatTime(value),
           },
           {
-            title: "操作",
+            title: t("Action", "操作"),
             key: "actions",
             width: 80,
-            render: (_, row) => <Link to={`/partner/dramas/${row.id}`}>进入</Link>,
+            render: (_, row) => <Link to={`/partner/dramas/${row.id}`}>{t("Open", "进入")}</Link>,
           },
         ]}
       />
 
       <Modal
-        title="新建剧集"
+        title={t("New Drama", "新建剧集")}
         open={createOpen}
         onCancel={() => setCreateOpen(false)}
         onOk={() => form.submit()}
-        okText="创建"
+        okText={t("Create", "创建")}
         confirmLoading={creating}
         forceRender
       >
         <Form form={form} layout="vertical" onFinish={create} preserve={false}>
           <Form.Item
-            label="剧名"
+            label={t("Title", "剧名")}
             name="title"
-            rules={[{ required: true, message: "请输入剧名" }]}
-            extra="同一供应商内不能重名"
+            rules={[{ required: true, message: t("Please enter a title", "请输入剧名") }]}
+            extra={t("Must be unique within your partner account", "同一供应商内不能重名")}
           >
             <Input maxLength={200} />
           </Form.Item>
-          <Form.Item label="简介" name="synopsis" extra="可以先留空，提交审核前需 ≥30 字">
+          <Form.Item
+            label={t("Synopsis", "简介")}
+            name="synopsis"
+            extra={t("Optional for now; at least 30 characters before submission", "可以先留空，提交审核前需 ≥30 字")}
+          >
             <Input.TextArea rows={3} maxLength={5000} />
           </Form.Item>
         </Form>

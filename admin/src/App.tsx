@@ -25,7 +25,8 @@ import {
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { api, clearToken, forceReauth, getToken, isDeadCredential } from "./api";
-import { MeContext, ROLE_LABELS, type Me } from "./me";
+import { LocaleSwitchButton, useI18n } from "./i18n";
+import { MeContext, roleLabel, type Me } from "./me";
 import Login from "./pages/Login";
 import Dramas from "./pages/Dramas";
 import DramaEdit from "./pages/DramaEdit";
@@ -62,36 +63,37 @@ const SIDER_WIDTH = 208;
  *  stops squeezing the page on tablets and phones. */
 const DESKTOP_QUERY = "(min-width: 992px)";
 
-const ITEMS: { key: string; label: string; roles?: string[] }[] = [
-  { key: "/dashboard", label: "数据看板", roles: ["ops", "finance", "admin"] },
-  { key: "/dramas", label: "剧集管理", roles: ["ops", "admin"] },
-  { key: "/reviews", label: "待审核", roles: ["ops", "admin"] },
-  { key: "/groups", label: "首页分组", roles: ["ops", "admin"] },
-  { key: "/users", label: "用户管理", roles: ["finance", "admin"] },
+const ITEMS: { key: string; labelEn: string; labelZh: string; roles?: string[] }[] = [
+  { key: "/dashboard", labelEn: "Dashboard", labelZh: "数据看板", roles: ["ops", "finance", "admin"] },
+  { key: "/dramas", labelEn: "Dramas", labelZh: "剧集管理", roles: ["ops", "admin"] },
+  { key: "/reviews", labelEn: "Pending Reviews", labelZh: "待审核", roles: ["ops", "admin"] },
+  { key: "/groups", labelEn: "Home Groups", labelZh: "首页分组", roles: ["ops", "admin"] },
+  { key: "/users", labelEn: "Users", labelZh: "用户管理", roles: ["finance", "admin"] },
   // 运营中心（推送记录）暂不开放：当前只是台账占位，没有真实推送通道，先隐藏入口。
   // 恢复时把下面一行和 /ops 路由一起放回来即可。
-  // { key: "/ops", label: "运营中心" },
-  { key: "/home-ops", label: "首页运营", roles: ["ops", "admin"] },
-  { key: "/rewards", label: "金币与任务", roles: ["ops", "admin"] },
-  { key: "/comments", label: "评论审核", roles: ["ops", "admin"] },
-  { key: "/moderation", label: "自动审核", roles: ["ops", "admin"] },
-  { key: "/finance", label: "财务订单", roles: ["finance", "admin"] },
-  { key: "/settlements", label: "结算单", roles: ["finance", "admin"] },
-  { key: "/plans", label: "会员套餐", roles: ["finance", "admin"] },
-  { key: "/tags", label: "标签库", roles: ["ops", "admin"] },
+  // { key: "/ops", labelEn: "Ops Center", labelZh: "运营中心" },
+  { key: "/home-ops", labelEn: "Home Ops", labelZh: "首页运营", roles: ["ops", "admin"] },
+  { key: "/rewards", labelEn: "Coins & Tasks", labelZh: "金币与任务", roles: ["ops", "admin"] },
+  { key: "/comments", labelEn: "Comments", labelZh: "评论审核", roles: ["ops", "admin"] },
+  { key: "/moderation", labelEn: "Auto Moderation", labelZh: "自动审核", roles: ["ops", "admin"] },
+  { key: "/finance", labelEn: "Orders", labelZh: "财务订单", roles: ["finance", "admin"] },
+  { key: "/settlements", labelEn: "Settlements", labelZh: "结算单", roles: ["finance", "admin"] },
+  { key: "/plans", labelEn: "Membership Plans", labelZh: "会员套餐", roles: ["finance", "admin"] },
+  { key: "/tags", labelEn: "Tags", labelZh: "标签库", roles: ["ops", "admin"] },
   // 员工账号只对管理员开放：运营/财务看到入口也只会拿到 403。
-  { key: "/staff", label: "账号管理", roles: ["admin"] },
+  { key: "/staff", labelEn: "Staff Accounts", labelZh: "账号管理", roles: ["admin"] },
   // 密钥签发是超管动作，与账号管理同级。
-  { key: "/api-keys", label: "API 密钥", roles: ["admin"] },
-  { key: "/suppliers", label: "上剧方管理", roles: ["admin"] },
+  { key: "/api-keys", labelEn: "API Keys", labelZh: "API 密钥", roles: ["admin"] },
+  { key: "/suppliers", labelEn: "Partners", labelZh: "上剧方管理", roles: ["admin"] },
   // 上剧方（partner）只看到自己的剧集；其它入口一律不渲染。
-  { key: "/partner/dramas", label: "我的剧集", roles: ["partner"] },
-  { key: "/partner/stats", label: "数据中心", roles: ["partner"] },
-  { key: "/partner/settlements", label: "结算单", roles: ["partner"] },
-  { key: "/partner/api-keys", label: "API 密钥", roles: ["partner"] },
+  { key: "/partner/dramas", labelEn: "My Dramas", labelZh: "我的剧集", roles: ["partner"] },
+  { key: "/partner/stats", labelEn: "Analytics", labelZh: "数据中心", roles: ["partner"] },
+  { key: "/partner/settlements", labelEn: "Settlements", labelZh: "结算单", roles: ["partner"] },
+  { key: "/partner/api-keys", labelEn: "API Keys", labelZh: "API 密钥", roles: ["partner"] },
 ];
 
 export default function App() {
+  const { locale, t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
   const token = getToken();
@@ -172,7 +174,7 @@ export default function App() {
       clearToken();
       setMe(null);
       setLoggingOut(false);
-      message.success("已退出登录");
+      message.success(t("Signed out", "已退出登录"));
       navigate("/login", { replace: true });
     }
   };
@@ -181,18 +183,21 @@ export default function App() {
     items: [
       {
         type: "group",
-        label: `登录账号：${account.username}（${ROLE_LABELS[account.role] ?? account.role}）`,
+        label: t(
+          `Signed in as ${account.username} (${roleLabel(account.role, locale)})`,
+          `登录账号：${account.username}（${roleLabel(account.role, locale)}）`
+        ),
         children: [
           {
             key: "password",
             icon: <KeyOutlined />,
-            label: "修改密码",
+            label: t("Change Password", "修改密码"),
           },
           {
             key: "logout",
             danger: true,
             icon: <LogoutOutlined />,
-            label: "退出登录",
+            label: t("Sign Out", "退出登录"),
           },
         ],
       },
@@ -226,7 +231,7 @@ export default function App() {
         }}
       >
         <Spin />
-        <Typography.Text type="secondary">正在校验登录状态…</Typography.Text>
+        <Typography.Text type="secondary">{t("Verifying session…", "正在校验登录状态…")}</Typography.Text>
       </div>
     );
   }
@@ -246,17 +251,19 @@ export default function App() {
         <Card style={{ maxWidth: 420, width: "100%" }}>
           <Space direction="vertical" size="middle" style={{ width: "100%" }}>
             <Typography.Title level={4} style={{ margin: 0 }}>
-              无法验证登录状态
+              {t("Unable to verify session", "无法验证登录状态")}
             </Typography.Title>
             <Typography.Text type="secondary">
-              会话服务暂时不可用（或网络中断），后台无法确认你的账号，因此不会展示任何数据。
-              可以直接重试；如果反复失败，请重新登录并联系管理员。
+              {t(
+                "The session service is temporarily unavailable or the network is disconnected. Please retry or sign in again.",
+                "会话服务暂时不可用（或网络中断），后台无法确认你的账号，因此不会展示任何数据。可以直接重试；如果反复失败，请重新登录并联系管理员。"
+              )}
             </Typography.Text>
             <Space>
               <Button type="primary" onClick={() => window.location.reload()}>
-                重试
+                {t("Retry", "重试")}
               </Button>
-              <Button onClick={() => forceReauth("manual")}>重新登录</Button>
+              <Button onClick={() => forceReauth("manual")}>{t("Sign In Again", "重新登录")}</Button>
             </Space>
           </Space>
         </Card>
@@ -277,13 +284,18 @@ export default function App() {
     .sort((a, b) => b.key.length - a.key.length)
     .find((item) => location.pathname === item.key || location.pathname.startsWith(`${item.key}/`));
   const selected = selectedItem?.key ?? "/dramas";
-  const pageTitle = selectedItem?.label ?? "剧集管理";
+  const pageTitle = selectedItem
+    ? t(selectedItem.labelEn, selectedItem.labelZh)
+    : t("Dramas", "剧集管理");
 
   // Role-gated entries stay hidden until `/auth/me` resolves, so a non-admin
   // never sees a menu item that would only 403. Unrestricted items pass through.
   const visibleItems = ITEMS.filter(
     (item) => !item.roles || (me !== null && item.roles.includes(me.role))
-  );
+  ).map((item) => ({
+    key: item.key,
+    label: t(item.labelEn, item.labelZh),
+  }));
 
   const nav = (
     <>
@@ -315,7 +327,9 @@ export default function App() {
             L
           </span>
           <span style={{ color: "var(--ld-text)", fontSize: 16, fontWeight: 800, letterSpacing: "-0.01em" }}>
-            {me?.role === "partner" ? "LeapDrama 合作方" : "LeapDrama 后台"}
+            {me?.role === "partner"
+              ? t("LeapDrama Partner", "LeapDrama 合作方")
+              : t("LeapDrama Admin", "LeapDrama 后台")}
           </span>
         </div>
       )}
@@ -379,14 +393,14 @@ export default function App() {
               {isDesktop ? (
                 <Button
                   type="text"
-                  aria-label={siderCollapsed ? "展开导航" : "收起导航"}
+                  aria-label={siderCollapsed ? t("Expand sidebar", "展开导航") : t("Collapse sidebar", "收起导航")}
                   icon={siderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                   onClick={() => setSiderCollapsed((value) => !value)}
                 />
               ) : (
                 <Button
                   type="text"
-                  aria-label="打开导航菜单"
+                  aria-label={t("Open navigation menu", "打开导航菜单")}
                   icon={<MenuOutlined />}
                   onClick={() => setNavOpen(true)}
                 />
@@ -396,9 +410,10 @@ export default function App() {
               </Typography.Text>
             </Space>
             <Space size={8}>
+              <LocaleSwitchButton size="small" />
               {!isNarrow && (
                 <Button type="text" size="small" href="/" target="_blank" rel="noopener noreferrer">
-                  前台播放端 ↗
+                  {t("Watch App ↗", "前台播放端 ↗")}
                 </Button>
               )}
               {me && (
@@ -406,7 +421,7 @@ export default function App() {
                 <Dropdown menu={accountMenu(me)} placement="bottomRight" trigger={["click"]}>
                   <Button
                     type="text"
-                    aria-label="账号菜单"
+                    aria-label={t("Account menu", "账号菜单")}
                     loading={loggingOut}
                     style={{ paddingInline: 8, height: 40 }}
                   >
@@ -419,7 +434,7 @@ export default function App() {
                       </Typography.Text>
                       {!isNarrow && (
                         <Tag color="orange" bordered={false} style={{ marginInlineEnd: 0, fontWeight: 600 }}>
-                          {ROLE_LABELS[me.role] ?? me.role}
+                          {roleLabel(me.role, locale)}
                         </Tag>
                       )}
                       <DownOutlined style={{ fontSize: 10, color: "var(--ld-muted)" }} />
