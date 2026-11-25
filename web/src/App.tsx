@@ -154,9 +154,9 @@ function HomePage() {
           <div className="hero-copy">
             <span className="eyebrow">{t("Vertical drama · New episodes daily", "竖屏短剧漫剧 · 每日上新")}</span>
             <h1>
-              {t("Vertical dramas,", "高能竖屏短剧，")}
+              {t("One Swipe.", "指尖一滑，")}
               <br />
-              <em>{t("one swipe away.", "一滑即入戏。")}</em>
+              <em>{t("Leap Into Drama.", "跃入高能好戏。")}</em>
             </h1>
             <p className="lede">
               {t(
