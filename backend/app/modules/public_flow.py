@@ -194,10 +194,13 @@ def email_code(body: CodeIn, db: Session = Depends(get_db)):
     normalized = body.email.strip().lower()
     exists = db.scalar(select(User.id).where(User.email == normalized)) is not None
     try:
-        accounts.issue_code(db, email=body.email, purpose=body.purpose)
+        code = accounts.issue_code(db, email=body.email, purpose=body.purpose)
     except AccountError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
-    return {"sent": True, "is_new_user": not exists}
+    resp: dict = {"sent": True, "is_new_user": not exists}
+    if not os.environ.get("RESEND_API_KEY", "").strip() and os.environ.get("APP_ENV", "local") != "production":
+        resp["demo_code"] = code
+    return resp
 
 
 @router.get("/auth/providers")

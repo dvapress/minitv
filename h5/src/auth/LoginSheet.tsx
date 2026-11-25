@@ -65,6 +65,7 @@ function LoginForm({
 }) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
+  const [demoCode, setDemoCode] = useState<string | null>(null);
   const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
   const [digits, setDigits] = useState<string[]>(() => Array.from({ length: CODE_LENGTH }, () => ""));
@@ -188,6 +189,7 @@ function LoginForm({
       .then((res) => {
         setEmail(value);
         setIsNewUser(res.is_new_user ?? null);
+        setDemoCode(res.demo_code ?? null);
         setDigits(Array.from({ length: CODE_LENGTH }, () => ""));
         setStep("code");
         setCooldown(RESEND_SECONDS);
@@ -338,6 +340,15 @@ function LoginForm({
                 </div>
               )}
               <p className="auth-hint">{t(locale, "code_sent_to", { email: maskEmail(email) })}</p>
+              {demoCode && (
+                <p className="auth-intent-banner is-existing">
+                  <span>
+                    {locale === "zh"
+                      ? `演示环境未接入邮件服务，本次验证码：${demoCode}`
+                      : `Demo mode (no SMTP configured) · Verification code: ${demoCode}`}
+                  </span>
+                </p>
+              )}
               <div className="auth-code">
                 {digits.map((digit, index) => (
                   <input

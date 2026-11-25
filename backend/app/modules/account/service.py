@@ -189,12 +189,17 @@ def issue_code(session: Session, *, email: str, purpose: str) -> str:
     )
     session.add(row)
     session.commit()
-    try:
-        send_verification_code(to=email, code=code, purpose=purpose)
-    except MailError as exc:
+    if os.environ.get("RESEND_API_KEY", "").strip():
+        try:
+            send_verification_code(to=email, code=code, purpose=purpose)
+        except MailError as exc:
+            session.delete(row)
+            session.commit()
+            raise AccountError(503, "email delivery failed") from exc
+    elif os.environ.get("APP_ENV", "local") == "production":
         session.delete(row)
         session.commit()
-        raise AccountError(503, "email delivery failed") from exc
+        raise AccountError(503, "email delivery failed")
     return code
 
 
