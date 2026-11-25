@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getJson } from "../api";
 import type { Locale } from "../copy";
 import { dramaTitle, floorName, t } from "../copy";
+import { LegalContent, type LegalKind } from "../components/LegalContent";
 import { formatCount } from "../format";
 import { IMG, thumb } from "../img";
 import {
@@ -64,7 +65,7 @@ export function HomePage({ locale, onOpen }: Props) {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [group, setGroup] = useState<HomeGroup | null>(null);
-  const [legalModal, setLegalModal] = useState<"terms" | "copyright" | "regional" | null>(null);
+  const [legalModal, setLegalModal] = useState<LegalKind | null>(null);
 
   const load = () => {
     setLoading(true);
@@ -209,27 +210,7 @@ export function HomePage({ locale, onOpen }: Props) {
               <button className="icon-btn" onClick={() => setLegalModal(null)} aria-label={t(locale, "close")}>✕</button>
             </div>
             <div className="legal-body">
-              {legalModal === "terms" && (
-                <p>
-                  {locale === "zh"
-                    ? "本平台提供竖屏微短剧及漫剧在线点播服务。每部剧集前 2 集免费试看，单集时长不超过 3 分钟；后续剧集可通过金币或会员权益解锁。"
-                    : "This platform provides vertical micro-drama streaming. The first 2 episodes of each series are free (up to 3 minutes per episode); subsequent episodes unlock via coins or membership."}
-                </p>
-              )}
-              {legalModal === "copyright" && (
-                <p>
-                  {locale === "zh"
-                    ? "平台展示的所有短剧、漫剧、封面与字幕内容均受版权保护，未经授权禁止录制、搬运或用于商业再分发。"
-                    : "All dramas, covers, and subtitles are protected by copyright. Unauthorized recording, redistribution, or commercial reuse is prohibited."}
-                </p>
-              )}
-              {legalModal === "regional" && (
-                <>
-                  <p><strong>简体中文：</strong>本服务遵循您所在地区的数字内容分发与隐私保护规范，支持简体中文、繁体中文与英文多语言体验。</p>
-                  <p><strong>繁體中文：</strong>本服務遵循您所在地區之數位內容分發與隱私保護規範，繁體中文介面持續完善中。</p>
-                  <p><strong>English:</strong> Regional availability, pricing, and content ratings follow local regulations across supported territories.</p>
-                </>
-              )}
+              <LegalContent kind={legalModal} locale={locale} />
             </div>
           </div>
         </>
