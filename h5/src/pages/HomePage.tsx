@@ -184,6 +184,7 @@ export function HomePage({ locale, onOpen }: Props) {
           <p className="site-footer-tag">{t(locale, "footer_tagline")}</p>
         </div>
         <div className="site-footer-links">
+          <a href="/site/">{t(locale, "official_site")} ↗</a>
           <a href="/site/privacy.html" target="_blank" rel="noopener noreferrer">{t(locale, "footer_privacy")}</a>
           <button type="button" onClick={() => setLegalModal("terms")}>{t(locale, "footer_terms")}</button>
           <button type="button" onClick={() => setLegalModal("copyright")}>{t(locale, "footer_copyright")}</button>

@@ -124,6 +124,9 @@ function AppShell() {
                 {t(locale, item.key)}
               </button>
             ))}
+            <a className="desktop-nav-link creator-link" href="/site/">
+              {t(locale, "official_site")} ↗
+            </a>
             <a className="desktop-nav-link creator-link" href="/admin/" target="_blank" rel="noopener noreferrer">
               {t(locale, "creator_studio")} ↗
             </a>
