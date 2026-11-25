@@ -381,7 +381,7 @@ function Floor({
   onMore: () => void;
 }) {
   const style = group.style || "poster3";
-  const limit = style === "rank" ? 3 : style === "grid2" ? 4 : 6;
+  const limit = style === "rank" ? 3 : style === "grid2" ? 4 : 10;
   const isHot = group.name.toLowerCase().includes("hot") || group.name.includes("热");
   return (
     <section className="floor-section">

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePrefs } from "./prefs";
 
 export function formatPlays(value: number) {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
@@ -14,15 +15,22 @@ export function formatDuration(seconds: number) {
 }
 
 export function PosterImage({ src, alt }: { src: string; alt: string }) {
+  const { locale } = usePrefs();
   const [failed, setFailed] = useState(false);
-  if (!src || failed) {
+  const resolved = src ? src.replace(/^(\/covers\/\d+)\.jpg$/i, `$1.${locale}.jpg`) : "";
+
+  useEffect(() => {
+    setFailed(false);
+  }, [resolved]);
+
+  if (!resolved || failed) {
     return (
       <span className="poster-fallback" aria-hidden="true">
-        <img className="brand-mark" src="/brand/leapdrama-icon.png" alt="" />
+        <span className="ld-brand-mark">L</span>
       </span>
     );
   }
-  return <img src={src} alt={alt} loading="lazy" onError={() => setFailed(true)} />;
+  return <img src={resolved} alt={alt} loading="lazy" onError={() => setFailed(true)} />;
 }
 
 export function PlayGlyph({ className }: { className?: string }) {

@@ -2233,6 +2233,7 @@ img { display: block; max-width: 100%; }
 }
 
 :root[data-theme="light"] .channel-tab { color: #57534e; }
+:root[data-theme="light"] .floor-more-btn { color: #57534e; }
 :root[data-theme="light"] .channel-tab.on,
 :root[data-theme="light"] .card-title,
 :root[data-theme="light"] .floor-title,

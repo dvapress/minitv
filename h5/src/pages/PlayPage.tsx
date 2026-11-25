@@ -4,6 +4,7 @@ import { useAuth } from "../auth/AuthProvider";
 import type { Locale } from "../copy";
 import { t } from "../copy";
 import { formatCount } from "../format";
+import { localizedCover } from "../img";
 import {
   IconBack,
   IconChevronUp,
@@ -505,7 +506,7 @@ export function PlayPage({ dramaId, locale, onBack, onOpenDrama, onOpenRewards }
                 className="pa-rel-card"
                 onClick={() => onOpenDrama(item.id)}
               >
-                {item.cover_url && <img className="pa-rel-cover" src={item.cover_url} alt="" loading="lazy" />}
+                {item.cover_url && <img className="pa-rel-cover" src={localizedCover(item.cover_url, locale)} alt="" loading="lazy" />}
                 <div className="pa-rel-info">
                   <p className="pa-rel-title">{item.title}</p>
                   <span className="pa-rel-meta">

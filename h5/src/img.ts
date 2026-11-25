@@ -25,9 +25,17 @@ export const IMG = {
   avatar: 144,
 } as const;
 
-export function thumb(url: string | null | undefined, width: number, quality = 75): string {
+export function localizedCover(url: string | null | undefined, locale?: "en" | "zh"): string {
   if (!url) return "";
-  if (!/^https?:\/\//i.test(url)) return url;
+  const m = url.match(/^(\/covers\/\d+)\.jpg(\?.*)?$/i);
+  if (!m) return url;
+  const lang = locale ?? (typeof localStorage !== "undefined" && localStorage.getItem("leapdrama_locale") === "zh" ? "zh" : "en");
+  return `${m[1]}.${lang}.jpg${m[2] ?? ""}`;
+}
+
+export function thumb(url: string | null | undefined, width: number, quality = 75, locale?: "en" | "zh"): string {
+  if (!url) return "";
+  if (!/^https?:\/\//i.test(url)) return localizedCover(url, locale);
 
   let parsed: URL;
   try {
