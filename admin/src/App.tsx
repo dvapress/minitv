@@ -25,7 +25,6 @@ import {
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { api, clearToken, forceReauth, getToken, isDeadCredential } from "./api";
-import { useAdminTheme } from "./main";
 import { MeContext, ROLE_LABELS, type Me } from "./me";
 import Login from "./pages/Login";
 import Dramas from "./pages/Dramas";
@@ -93,8 +92,6 @@ const ITEMS: { key: string; label: string; roles?: string[] }[] = [
 ];
 
 export default function App() {
-  const { mode, toggleMode } = useAdminTheme();
-  const isDark = mode === "dark";
   const navigate = useNavigate();
   const location = useLocation();
   const token = getToken();
@@ -324,7 +321,7 @@ export default function App() {
       )}
       <Menu
         mode="inline"
-        theme={isDark ? "dark" : "light"}
+        theme="light"
         style={{ borderInlineEnd: "none", background: "transparent", paddingInline: 8 }}
         selectedKeys={[selected]}
         items={visibleItems}
@@ -345,7 +342,7 @@ export default function App() {
             collapsedWidth={0}
             collapsed={siderCollapsed}
             trigger={null}
-            theme={isDark ? "dark" : "light"}
+            theme="light"
             style={{
               overflow: "hidden",
               background: "var(--ld-sider)",
@@ -404,18 +401,6 @@ export default function App() {
                   前台播放端 ↗
                 </Button>
               )}
-              <Button
-                type="default"
-                size="small"
-                onClick={toggleMode}
-                title={isDark ? "切换浅色模式" : "切换深色模式"}
-                style={{
-                  borderRadius: 999,
-                  fontWeight: 600,
-                }}
-              >
-                {isDark ? "☀ 浅色" : "☾ 深色"}
-              </Button>
               {me && (
                 // 账号区即退出入口：头像 + 名字 + 角色，点开是「退出登录」菜单。
                 <Dropdown menu={accountMenu(me)} placement="bottomRight" trigger={["click"]}>
