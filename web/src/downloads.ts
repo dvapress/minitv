@@ -4,7 +4,7 @@
 export const ANDROID_APK = {
   version: "1.0.0",
   abi: "arm64-v8a",
-  size: "22 MB",
+  size: "18.8 MB",
   url: "/downloads/leapdrama-1.0.0-arm64-v8a.apk",
   filename: "LeapDrama-1.0.0-arm64-v8a.apk",
 } as const;

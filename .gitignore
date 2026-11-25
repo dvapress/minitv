@@ -49,3 +49,5 @@ data/leapdrama-catalog-20261013/
 
 # macOS
 .DS_Store
+
+.leapdrama-flutter-build/
