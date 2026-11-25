@@ -529,7 +529,7 @@ function HomePage() {
             </div>
             <div className="qr-block">
               <div className="qr-tile">
-                <img src="/qr-web.png" alt="QR code to watch LeapDrama in your browser" />
+                <img src="/qr-web.png?v=2" alt="QR code to watch LeapDrama in your browser" />
               </div>
               <p className="qr-caption">{t("Scan to watch on the web", "扫码在手机浏览器观看")}</p>
             </div>
