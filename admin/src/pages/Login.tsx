@@ -4,11 +4,29 @@ import { Alert, Button, Card, Form, Input, message } from "antd";
 import { api, setToken, takeLogoutReason } from "../api";
 import { LocaleSwitchButton, useI18n } from "../i18n";
 
-// 本地开发才预填默认账号，方便反复登录；生产构建里这个常量会被 Vite 直接裁掉，
-// 不会再随 JS 下发明文口令（旧版本把 admin/admin-1234 打进了线上包）。
 const PRESET_LOGIN = import.meta.env.DEV
   ? { username: "admin", password: "admin-1234" }
   : undefined;
+
+interface DemoAccount {
+  roleEn: string;
+  roleZh: string;
+  username: string;
+  password: string;
+}
+
+function parseDemoAccounts(): DemoAccount[] {
+  const raw = import.meta.env.VITE_DEMO_ACCOUNTS as string | undefined;
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+const DEMO_ACCOUNTS = parseDemoAccounts();
 
 const REASON_TEXT: Record<string, [string, string]> = {
   expired: [
@@ -50,6 +68,7 @@ const LOGOUT_REASON = takeLogoutReason();
 export default function Login() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const [form] = Form.useForm<{ username: string; password: string }>();
   const [loading, setLoading] = useState(false);
   const { locale, t } = useI18n();
   const expired = params.get("expired") === "1";
@@ -103,7 +122,7 @@ export default function Login() {
       </div>
       <Card
         title={t("LeapDrama Console Sign In", "LeapDrama 管理后台登录")}
-        style={{ width: "100%", maxWidth: 360 }}
+        style={{ width: "100%", maxWidth: 400 }}
       >
         {hint && (
           <Alert
@@ -113,7 +132,7 @@ export default function Login() {
             style={{ marginBottom: 16 }}
           />
         )}
-        <Form layout="vertical" onFinish={onFinish} initialValues={PRESET_LOGIN}>
+        <Form form={form} layout="vertical" onFinish={onFinish} initialValues={PRESET_LOGIN}>
           <Form.Item
             name="username"
             label={t("Username", "账号")}
@@ -132,6 +151,67 @@ export default function Login() {
             {t("Sign In", "登录")}
           </Button>
         </Form>
+
+        {DEMO_ACCOUNTS.length > 0 && (
+          <div
+            style={{
+              marginTop: 18,
+              padding: "12px 14px",
+              borderRadius: 10,
+              background: "var(--ld-surface-2, #F7F1EB)",
+              border: "1px solid var(--ld-border, rgba(28, 25, 23, 0.1))",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--ld-muted, #57534E)",
+                marginBottom: 8,
+              }}
+            >
+              {t("Demo Accounts (click to fill)", "演示账号（点击一键填入）")}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {DEMO_ACCOUNTS.map((acc) => (
+                <div
+                  key={acc.username}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 8,
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    background: "var(--ld-surface, #FFFFFF)",
+                    border: "1px solid var(--ld-border, rgba(28, 25, 23, 0.1))",
+                  }}
+                >
+                  <div style={{ fontSize: 12.5, lineHeight: 1.45 }}>
+                    <div style={{ fontWeight: 700, color: "var(--ld-text, #1C1917)" }}>
+                      {locale === "zh" ? acc.roleZh : acc.roleEn}
+                    </div>
+                    <div style={{ color: "var(--ld-muted, #57534E)", fontFamily: "ui-monospace, monospace" }}>
+                      {acc.username} / {acc.password}
+                    </div>
+                  </div>
+                  <Button
+                    size="small"
+                    type="default"
+                    onClick={() => {
+                      form.setFieldsValue({ username: acc.username, password: acc.password });
+                      message.success(
+                        t(`Filled ${acc.username}`, `已填入 ${acc.username} 演示账号`),
+                      );
+                    }}
+                  >
+                    {t("Fill", "一键填入")}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );
