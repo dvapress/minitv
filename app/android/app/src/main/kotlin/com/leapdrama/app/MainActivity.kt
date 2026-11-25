@@ -1,4 +1,4 @@
-package app.minitv.minitv
+package com.leapdrama.app
 
 import io.flutter.embedding.android.FlutterActivity
 

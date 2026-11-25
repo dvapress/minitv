@@ -42,7 +42,7 @@ export function PlayPage({ dramaId, locale, onBack, onOpenDrama, onOpenRewards }
   const [payload, setPayload] = useState<PlayPayload | null>(null);
   const [related, setRelated] = useState<DramaCard[]>([]);
   const [asideTab, setAsideTab] = useState<"episodes" | "related">("episodes");
-  const [subtitlesOn, setSubtitlesOn] = useState<boolean>(() => localStorage.getItem("minitv_cc") !== "off");
+  const [subtitlesOn, setSubtitlesOn] = useState<boolean>(() => localStorage.getItem("leapdrama_cc") !== "off");
   const [error, setError] = useState(false);
   const [index, setIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
@@ -55,11 +55,11 @@ export function PlayPage({ dramaId, locale, onBack, onOpenDrama, onOpenRewards }
   const [favorited, setFavorited] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [speed, setSpeed] = useState<number>(() => {
-    const saved = localStorage.getItem("minitv_speed");
+    const saved = localStorage.getItem("leapdrama_speed");
     return saved ? parseFloat(saved) : 1.0;
   });
   const [quality, setQuality] = useState<string>(() => {
-    return localStorage.getItem("minitv_quality") || "Auto";
+    return localStorage.getItem("leapdrama_quality") || "Auto";
   });
   const [availableQualities, setAvailableQualities] = useState<string[]>([
     "Auto",
@@ -72,12 +72,12 @@ export function PlayPage({ dramaId, locale, onBack, onOpenDrama, onOpenRewards }
 
   const changeSpeed = (s: number) => {
     setSpeed(s);
-    localStorage.setItem("minitv_speed", String(s));
+    localStorage.setItem("leapdrama_speed", String(s));
   };
 
   const changeQuality = (q: string) => {
     setQuality(q);
-    localStorage.setItem("minitv_quality", q);
+    localStorage.setItem("leapdrama_quality", q);
   };
 
   const load = () => {
@@ -119,7 +119,7 @@ export function PlayPage({ dramaId, locale, onBack, onOpenDrama, onOpenRewards }
   const toggleSubtitles = () => {
     const next = !subtitlesOn;
     setSubtitlesOn(next);
-    localStorage.setItem("minitv_cc", next ? "on" : "off");
+    localStorage.setItem("leapdrama_cc", next ? "on" : "off");
     toast(next ? t(locale, "subtitles_on") : t(locale, "subtitles_off"));
   };
 

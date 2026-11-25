@@ -1,4 +1,4 @@
-"""Local health app for the MiniTV test environment."""
+"""Local health app for the LeapDrama test environment."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 ROOT = Path(__file__).resolve().parents[2]
-logger = logging.getLogger("minitv.api")
+logger = logging.getLogger("leapdrama.api")
 
 
 def load_env() -> None:
@@ -36,10 +36,10 @@ _DEFAULT_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
-    "https://minitv.us",
-    "https://www.minitv.us",
-    "https://admin.minitv.us",
-    "https://h5.minitv.us",
+    "https://leapdrama-demo-v2.rei.autos/site/",
+    "https://leapdrama-demo-v2.rei.autos/site/",
+    "https://leapdrama-demo-v2.rei.autos/admin/",
+    "https://leapdrama-demo-v2.rei.autos",
 ]
 
 

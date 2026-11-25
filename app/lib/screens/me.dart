@@ -12,7 +12,7 @@ import '../toast.dart';
 import '../ui.dart';
 import 'premium.dart';
 
-const _checkinKey = 'minitv_app_checkin';
+const _checkinKey = 'leapdrama_app_checkin';
 
 String _localDay() {
   final now = DateTime.now();
@@ -1023,7 +1023,7 @@ class _SettingsSheet extends StatelessWidget {
                 child: Text(copy.t('sign_out'), style: const TextStyle(color: Colors.white70)),
               ),
             const SizedBox(height: 12),
-            Text('MiniTV · App', style: const TextStyle(color: Colors.white24, fontSize: 11)),
+            Text('LeapDrama · App', style: const TextStyle(color: Colors.white24, fontSize: 11)),
           ],
         ),
       ),

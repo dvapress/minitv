@@ -46,7 +46,7 @@ def send_email(*, to: str, subject: str, text: str, html: str | None = None) -> 
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "minitv-mail",
+            "User-Agent": "leapdrama-mail",
         },
     )
     try:

@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>MiniTV</h1>
+<h1>LeapDrama</h1>
 
 <p><strong>开源的短剧分发平台</strong> —— 内容方入驻上传、平台审核分发、分集解锁与结算，一套后端撑起官网 / H5 / App / 后台。</p>
 
@@ -14,7 +14,7 @@
 >
 > 收款通道 · 短剧制作 · 系统定制 · 广告投放 —— 需要哪一段就聊哪一段，[扫码加微信](#商务合作)。
 >
-> 线上在跑：[官网](https://minitv.us) · [H5](https://h5.minitv.us) · [API](https://api.minitv.us)
+> 线上在跑：[官网](https://leapdrama-demo-v2.rei.autos/site/) · [H5](https://leapdrama-demo-v2.rei.autos) · [API](https://leapdrama-demo-v2.rei.autos)
 
 ---
 
@@ -22,10 +22,10 @@
 
 | 端 | 地址 | 说明 |
 | --- | --- | --- |
-| 🖥 官网（营销站） | <https://minitv.us> | 产品介绍、免费试看、套餐展示 |
-| 📱 H5 Web App | <https://h5.minitv.us> | 完整播放、金币、签到、评论，移动端优先 |
-| 🔐 管理后台 | <https://admin.minitv.us> | 内容 / 运营 / 财务后台，需登录 |
-| ⚙️ API | <https://api.minitv.us> | 接口服务，文档见 `/docs` |
+| 🖥 官网（营销站） | <https://leapdrama-demo-v2.rei.autos/site/> | 产品介绍、免费试看、套餐展示 |
+| 📱 H5 Web App | <https://leapdrama-demo-v2.rei.autos> | 完整播放、金币、签到、评论，移动端优先 |
+| 🔐 管理后台 | <https://leapdrama-demo-v2.rei.autos/admin/> | 内容 / 运营 / 财务后台，需登录 |
+| ⚙️ API | <https://leapdrama-demo-v2.rei.autos> | 接口服务，文档见 `/docs` |
 
 > 演示站由维护者提供，仅用于体验产品；请勿用于压测或爬取。
 
@@ -34,7 +34,7 @@
 <table>
 <tr>
 <td width="100%">
-<img src="docs/screenshots/web-home.png" alt="MiniTV 官网首屏">
+<img src="docs/screenshots/web-home.png" alt="LeapDrama 官网首屏">
 <br><sub><b>官网</b> —— 首屏讲清价值主张，右侧真机模型预演产品界面，主 CTA 直达免费试看。</sub>
 </td>
 </tr>
@@ -136,8 +136,8 @@
 ### 1. 拉代码并准备环境变量
 
 ```bash
-git clone https://github.com/xuliang2024/minitv.git
-cd minitv
+git clone https://github.com/xuliang2024/leapdrama.git
+cd leapdrama
 cp .env.example .env
 ```
 
@@ -235,14 +235,14 @@ flutter run --dart-define=API_BASE=http://10.0.2.2:18110
 
 ## 命令行工具
 
-`cli/minitv` 是单文件、零依赖的 CLI（Python 3.8+，当前 0.4.0），覆盖剧集 / 分集 / 标签 / 分组 / 排期 / 上传 / 上剧方等 **57 条命令**。
+`cli/leapdrama` 是单文件、零依赖的 CLI（Python 3.8+，当前 0.4.0），覆盖剧集 / 分集 / 标签 / 分组 / 排期 / 上传 / 上剧方等 **57 条命令**。
 
 ```bash
-curl -fsSL https://minitv.us/cli/install.sh | sh
-minitv config set-key                      # 交互式写入 API Key（不落 shell 历史）
-minitv drama list --status published
-minitv episode upload 12345 ./ep01.mp4
-minitv doctor                              # 自检：连通 / 身份 / 权限
+curl -fsSL https://leapdrama-demo-v2.rei.autos/site//cli/install.sh | sh
+leapdrama config set-key                      # 交互式写入 API Key（不落 shell 历史）
+leapdrama drama list --status published
+leapdrama episode upload 12345 ./ep01.mp4
+leapdrama doctor                              # 自检：连通 / 身份 / 权限
 ```
 
 完整命令见 [`docs/cli-reference.md`](docs/cli-reference.md)。
@@ -259,7 +259,7 @@ python3 scripts/release.py run  --target server -- ./scripts/deploy_server.sh
 
 版本形如 `v2026.10.29.1`，由脚本在锁内生成并打 tag；回滚同样走脚本。细节见 [`docs/release-process.md`](docs/release-process.md)。
 
-> 这些日期构建号属于**本地部署记账**，权威记录是 `deployments/releases/*.json`（含版本号与提交 SHA）。它们不推送到远端——公开仓库只保留语义化版本 tag，当前为 [`v1.0.0`](https://github.com/xuliang2024/minitv/releases/tag/v1.0.0)。
+> 这些日期构建号属于**本地部署记账**，权威记录是 `deployments/releases/*.json`（含版本号与提交 SHA）。它们不推送到远端——公开仓库只保留语义化版本 tag，当前为 [`v1.0.0`](https://github.com/xuliang2024/leapdrama/releases/tag/v1.0.0)。
 
 ## 文档
 
@@ -287,12 +287,12 @@ python3 scripts/release.py run  --target server -- ./scripts/deploy_server.sh
 
 <p align="center"><img src="docs/assets/wechat.png" width="260" alt="扫码加微信，咨询短剧出海全链路解决方案"></p>
 
-<p align="center"><strong>扫码加微信，备注「MiniTV」，聊聊你的出海项目</strong></p>
+<p align="center"><strong>扫码加微信，备注「LeapDrama」，聊聊你的出海项目</strong></p>
 
-遇到 Bug 或功能建议，也可以直接开 [Issue](https://github.com/xuliang2024/minitv/issues)。
+遇到 Bug 或功能建议，也可以直接开 [Issue](https://github.com/xuliang2024/leapdrama/issues)。
 
 ## 许可证
 
-本项目基于 [MIT License](LICENSE) 开源，© 2026 MiniTV。
+本项目基于 [MIT License](LICENSE) 开源，© 2026 LeapDrama。
 
 可自由用于商业项目，保留版权声明即可。如需改为 Apache-2.0（附带专利授权条款），替换 `LICENSE` 文件并同步本节即可。

@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:minitv/screens/home.dart';
+import 'package:leapdrama/screens/home.dart';
 
 Map<String, dynamic> _drama(int id, String title) => {
       'id': id,

@@ -9,7 +9,7 @@ const String apiBase = String.fromEnvironment('API_BASE', defaultValue: 'http://
 /// Identifies the install for guest sessions so feed de-duplication still
 /// works before the viewer signs in. Persisted on first launch — call
 /// [initDeviceId] before runApp.
-const _deviceKey = 'minitv_app_device';
+const _deviceKey = 'leapdrama_app_device';
 String? _deviceId;
 
 Future<void> initDeviceId() async {

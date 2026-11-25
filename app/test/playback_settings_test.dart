@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:minitv/screens/detail.dart';
-import 'package:minitv/session.dart';
-import 'package:minitv/ui.dart';
+import 'package:leapdrama/screens/detail.dart';
+import 'package:leapdrama/session.dart';
+import 'package:leapdrama/ui.dart';
 
 const _master = '''
 #EXTM3U

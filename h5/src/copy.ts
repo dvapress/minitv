@@ -574,7 +574,7 @@ export function t(locale: Locale, key: string, vars: Record<string, string | num
 const KEY = "leapdrama_locale";
 
 export function loadLocale(): Locale {
-  const saved = localStorage.getItem(KEY) ?? localStorage.getItem("minitv_h5_locale");
+  const saved = localStorage.getItem(KEY) ?? localStorage.getItem("leapdrama_locale");
   return saved === "zh" ? "zh" : "en";
 }
 

@@ -10,7 +10,7 @@ import type {
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
-const DEVICE_KEY = "minitv_h5_device";
+const DEVICE_KEY = "leapdrama_device";
 
 export function deviceId(): string {
   const existing = localStorage.getItem(DEVICE_KEY);
@@ -31,7 +31,7 @@ export class ApiError extends Error {
   }
 }
 
-let token: string | null = localStorage.getItem("minitv_h5_token");
+let token: string | null = localStorage.getItem("leapdrama_token");
 
 export function authToken(): string | null {
   return token;
@@ -39,8 +39,8 @@ export function authToken(): string | null {
 
 export function setAuthToken(value: string | null) {
   token = value;
-  if (value) localStorage.setItem("minitv_h5_token", value);
-  else localStorage.removeItem("minitv_h5_token");
+  if (value) localStorage.setItem("leapdrama_token", value);
+  else localStorage.removeItem("leapdrama_token");
 }
 
 let unauthorizedHandler: (() => void) | null = null;

@@ -22,17 +22,17 @@ Future<void> main() async {
     // A broken plugin build must not keep the app on the splash screen; the
     // guest device id falls back to a value generated on first use.
   }
-  runApp(MiniTvApp(session: Session()));
+  runApp(LeapDramaApp(session: Session()));
 }
 
-class MiniTvApp extends StatefulWidget {
-  const MiniTvApp({super.key, this.session});
+class LeapDramaApp extends StatefulWidget {
+  const LeapDramaApp({super.key, this.session});
   final Session? session;
   @override
-  State<MiniTvApp> createState() => _MiniTvAppState();
+  State<LeapDramaApp> createState() => _LeapDramaAppState();
 }
 
-class _MiniTvAppState extends State<MiniTvApp> {
+class _LeapDramaAppState extends State<LeapDramaApp> {
   late final Session session = widget.session ?? Session();
   String language = 'en';
 
@@ -150,7 +150,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
           : AppBar(
               backgroundColor: bg,
               foregroundColor: Colors.white,
-              title: Text(tab == 0 ? 'MiniTV' : copy.t(['nav.home', 'nav.foryou', 'nav.rewards', 'nav.me'][tab])),
+              title: Text(tab == 0 ? 'LeapDrama' : copy.t(['nav.home', 'nav.foryou', 'nav.rewards', 'nav.me'][tab])),
               actions: [
                 TextButton(
                   onPressed: () => widget.onLanguage(widget.language == 'zh' ? 'en' : 'zh'),

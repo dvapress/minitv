@@ -49,7 +49,7 @@ def _bearer_token(request: Request) -> str:
 
 
 SESSION_STORE_503_DETAIL = (
-    "会话存储不可用（Redis 未连接）。请先启动 minitv-redis："
+    "会话存储不可用（Redis 未连接）。请先启动 leapdrama-redis："
     "在仓库根目录执行 docker compose up -d，然后重试。"
 )
 

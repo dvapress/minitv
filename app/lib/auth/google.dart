@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:google_sign_in/google_sign_in.dart';
 
-/// iOS OAuth client created for the `app.minitv.minitv` bundle.
+/// iOS OAuth client created for the `com.leapdrama.app` bundle.
 ///
 /// The same value lives in `ios/Runner/Info.plist` as `GIDClientID`, and its
 /// reversed form is the URL scheme Google redirects back to — all three must

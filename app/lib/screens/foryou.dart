@@ -215,8 +215,8 @@ class _FeedSlotState extends State<_FeedSlot> {
   }
 
   void _share() {
-    final title = drama['title'] as String? ?? 'MiniTV';
-    SharePlus.instance.share(ShareParams(text: '$title\nhttps://h5.minitv.us', subject: title));
+    final title = drama['title'] as String? ?? 'LeapDrama';
+    SharePlus.instance.share(ShareParams(text: '$title\nhttps://leapdrama-demo-v2.rei.autos', subject: title));
   }
 
   @override

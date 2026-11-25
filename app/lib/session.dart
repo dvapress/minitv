@@ -13,8 +13,8 @@ const _debugToken = String.fromEnvironment('DEBUG_TOKEN', defaultValue: '');
 /// flips the app back to guest, and `requireAuth` replays the blocked action
 /// once the login sheet completes.
 class Session extends ChangeNotifier {
-  static const _tokenKey = 'minitv_app_token';
-  static const _localeKey = 'minitv_app_locale';
+  static const _tokenKey = 'leapdrama_app_token';
+  static const _localeKey = 'leapdrama_app_locale';
 
   String? token;
   Map<String, dynamic>? user;

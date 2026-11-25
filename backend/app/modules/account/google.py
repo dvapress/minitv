@@ -60,7 +60,7 @@ def _certs() -> list[dict]:
     now = time.time()
     if _certs_cache is not None and _certs_cache[0] > now:
         return _certs_cache[1]
-    request = urllib.request.Request(GOOGLE_CERTS_URL, headers={"User-Agent": "minitv-google"})
+    request = urllib.request.Request(GOOGLE_CERTS_URL, headers={"User-Agent": "leapdrama-google"})
     try:
         with urllib.request.urlopen(request, timeout=10) as response:
             payload = json.loads(response.read().decode())

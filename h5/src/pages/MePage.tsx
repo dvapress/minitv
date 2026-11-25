@@ -42,7 +42,7 @@ type MeTab = "history" | "favorites" | "likes";
 type SheetId = "edit" | "ledger" | "messages" | "settings" | "premium" | "orders" | "signout";
 type LoadState = "idle" | "loading" | "ready" | "error";
 
-const CHECKIN_KEY = "minitv_h5_checkin";
+const CHECKIN_KEY = "leapdrama_checkin";
 
 function localDay(): string {
   const now = new Date();

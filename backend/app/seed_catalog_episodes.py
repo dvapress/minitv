@@ -30,7 +30,7 @@ from app.db import get_engine, make_session_factory
 from app.modules.content.models import Drama, DramaTag, Episode, Tag
 
 ROOT = Path(__file__).resolve().parents[2]
-CATALOG_PATH = ROOT / "data" / "litetv-catalog-20261013" / "dramas.json"
+CATALOG_PATH = ROOT / "data" / "leapdrama-catalog-20261013" / "dramas.json"
 
 
 def _normalise_title(title: str) -> str:
@@ -132,7 +132,7 @@ def seed_drama_episodes(
     )
     created = 0
     for item in catalog_episodes:
-        # The source catalog is zero-based; MiniTV admin/client numbering is
+        # The source catalog is zero-based; LeapDrama admin/client numbering is
         # one-based (Episode 1 == catalog episode_number 0).
         number = int(item["episode_number"]) + 1
         if number in existing:

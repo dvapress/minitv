@@ -22,7 +22,7 @@ import { toast } from "../ui/toast";
 
 type LoadState = "idle" | "loading" | "ready" | "error";
 
-const CHECKIN_KEY = "minitv_h5_checkin";
+const CHECKIN_KEY = "leapdrama_checkin";
 
 /** Server names are Chinese; the task centre is bilingual, so map by code. */
 const TASK_COPY: Record<string, { name: string; desc: string }> = {

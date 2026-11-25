@@ -1,24 +1,24 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:minitv/img.dart';
+import 'package:leapdrama/img.dart';
 
 void main() {
   group('imgUrl', () {
     test('asks the pull zone for a width/quality variant', () {
       expect(
-        imgUrl('https://minitv-dev-img.b-cdn.net/covers/113/cover.jpg', 480),
-        'https://minitv-dev-img.b-cdn.net/covers/113/cover.jpg?width=480&quality=75',
+        imgUrl('https://cdn.leapdrama.local/covers/113/cover.jpg', 480),
+        'https://cdn.leapdrama.local/covers/113/cover.jpg?width=480&quality=75',
       );
     });
 
     test('keeps the cache-busting version param', () {
       expect(
-        imgUrl('https://minitv-dev-img.b-cdn.net/covers/113/cover.jpg?v=17', 180),
-        'https://minitv-dev-img.b-cdn.net/covers/113/cover.jpg?v=17&width=180&quality=75',
+        imgUrl('https://cdn.leapdrama.local/covers/113/cover.jpg?v=17', 180),
+        'https://cdn.leapdrama.local/covers/113/cover.jpg?v=17&width=180&quality=75',
       );
     });
 
     test('never double-sizes a url', () {
-      const sized = 'https://minitv-dev-img.b-cdn.net/covers/113/cover.jpg?width=960';
+      const sized = 'https://cdn.leapdrama.local/covers/113/cover.jpg?width=960';
       expect(imgUrl(sized, 480), sized);
     });
 

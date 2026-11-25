@@ -25,7 +25,7 @@ from app.modules.ops.service import get_redis
 from app.modules.wallet.models import CoinLedgerEntry, WalletAccount
 
 LA = ZoneInfo("America/Los_Angeles")
-USER_SESSION_PREFIX = "minitv_user_session:"
+USER_SESSION_PREFIX = "leapdrama_user_session:"
 DEFAULT_CHECKIN = [30, 30, 50, 50, 30, 60, 90]
 DEFAULT_AMOUNTS = {
     "register": [80],
@@ -201,13 +201,13 @@ def issue_code(session: Session, *, email: str, purpose: str) -> str:
 def send_verification_code(*, to: str, code: str, purpose: str) -> str:
     """Send a one-time code. The plaintext is only in this message, never logged."""
     subject = {
-        "register": "Your MiniTV verification code",
-        "login": "Your MiniTV sign-in code",
-        "bind": "Your MiniTV email binding code",
-    }.get(purpose, "Your MiniTV verification code")
-    text = f"Your MiniTV code is {code}. It expires in 10 minutes. If you did not request it, ignore this email."
+        "register": "Your LeapDrama verification code",
+        "login": "Your LeapDrama sign-in code",
+        "bind": "Your LeapDrama email binding code",
+    }.get(purpose, "Your LeapDrama verification code")
+    text = f"Your LeapDrama code is {code}. It expires in 10 minutes. If you did not request it, ignore this email."
     html = (
-        f"<p>Your MiniTV code is <strong>{code}</strong>.</p>"
+        f"<p>Your LeapDrama code is <strong>{code}</strong>.</p>"
         "<p>It expires in 10 minutes. If you did not request it, ignore this email.</p>"
     )
     return send_email(to=to, subject=subject, text=text, html=html)
@@ -267,7 +267,7 @@ def _issue_session(user: User) -> str:
 def _new_user(session: Session, *, email: str | None, display_name: str, avatar_url: str = "") -> User:
     user = User(
         email=email,
-        display_name=(display_name or (email.split("@")[0] if email else "MiniTV"))[:64],
+        display_name=(display_name or (email.split("@")[0] if email else "LeapDrama"))[:64],
         avatar_url=avatar_url[:500],
         public_id=str(secrets.randbelow(9_000_000_000) + 1_000_000_000),
     )

@@ -1,6 +1,6 @@
-const TOKEN_KEY = "minitv_admin_token";
+const TOKEN_KEY = "leapdrama_admin_token";
 /** Why the last session ended; the login page turns it into a hint. */
-const LOGOUT_REASON_KEY = "minitv_admin_logout_reason";
+const LOGOUT_REASON_KEY = "leapdrama_admin_logout_reason";
 
 /** Production builds set VITE_API_BASE; local Vite dev leaves it empty and uses the proxy. */
 export const API_BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");

@@ -612,7 +612,7 @@ def reconcile_transcoding(db: Session, remote_by_guid: dict[str, dict]) -> dict[
     return {"advanced": advanced, "failed": failed, "pending": pending, "missing": missing, "seen": len(rows)}
 
 
-_reconcile_log = logging.getLogger("minitv.transcode")
+_reconcile_log = logging.getLogger("leapdrama.transcode")
 _reconcile_started = False
 _RECONCILE_INTERVAL_SECONDS = 120
 _library_cache: tuple[float, dict[str, dict]] = (0.0, {})

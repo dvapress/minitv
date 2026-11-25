@@ -457,7 +457,7 @@ function HomePage() {
                     <small>
                       Android {ANDROID_MIN}+ · {ANDROID_APK.size}
                     </small>
-                    <strong>Download APK</strong>
+                    <strong>{t("Download APK", "下载 LeapDrama APK")}</strong>
                   </span>
                 </a>
                 <a
@@ -472,14 +472,16 @@ function HomePage() {
                     <path d="M12 3.6c2.4 2.5 2.4 14.4 0 16.8M12 3.6c-2.4 2.5-2.4 14.4 0 16.8" />
                   </svg>
                   <span>
-                    <small>No download needed</small>
-                    <strong>Watch Online</strong>
+                    <small>{t("No download needed", "免安装直接看")}</small>
+                    <strong>{t("Watch Online", "在线观看")}</strong>
                   </span>
                 </a>
               </div>
               <p className="apk-hint">
-                v{ANDROID_APK.version} · The first install asks you to allow installs from
-                this browser — tap Settings, allow, then Install.
+                {t(
+                  `v${ANDROID_APK.version} · The first install asks you to allow installs from this browser — tap Settings, allow, then Install.`,
+                  `v${ANDROID_APK.version} · 首次安装如提示权限，请在设置中允许当前浏览器安装应用。`,
+                )}
               </p>
               <div className="store-buttons store-buttons-soon">
                 <button

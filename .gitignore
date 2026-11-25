@@ -27,7 +27,7 @@ data/import-logs/
 .slidep/
 
 # generated image drafts (logo exploration, page snapshots)
-litetv-logo_assets/
+leapdrama-logo_assets/
 outputs/
 
 # frontend build artifacts
@@ -42,10 +42,10 @@ h5/dist/
 dist/
 
 # local media library (large, regenerable via scripts/)
-data/litetv-videos-local/
-data/litetv-videos-real/
-data/litetv-videos-synth/
-data/litetv-catalog-20261013/
+data/leapdrama-videos-local/
+data/leapdrama-videos-real/
+data/leapdrama-videos-synth/
+data/leapdrama-catalog-20261013/
 
 # macOS
 .DS_Store

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:minitv/hls.dart';
+import 'package:leapdrama/hls.dart';
 
 /// The real master playlist Bunny serves for a 480-tall source.
 const _master = '''

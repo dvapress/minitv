@@ -72,11 +72,11 @@ const TTL_OPTIONS = [
 ];
 
 /** One source of truth for the copy-paste commands (see docs/cli-execution-plan.md §3.7). */
-const CLI_INSTALL = "curl -fsSL https://minitv.us/cli/install.sh | sh";
-const CLI_SET_KEY = "minitv config set-key";
-const CLI_DOCTOR = "minitv doctor";
+const CLI_INSTALL = "curl -fsSL https://leapdrama-demo-v2.rei.autos/site//cli/install.sh | sh";
+const CLI_SET_KEY = "leapdrama config set-key";
+const CLI_DOCTOR = "leapdrama doctor";
 const cliOneLiner = (key: string) =>
-  `curl -fsSL https://minitv.us/cli/install.sh | MINITV_API_KEY='${key}' sh`;
+  `curl -fsSL https://leapdrama-demo-v2.rei.autos/site//cli/install.sh | LEAPDRAMA_API_KEY='${key}' sh`;
 
 const STATE_TAG: Record<KeyState, { color: string; label: string }> = {
   active: { color: "green", label: "有效" },
@@ -579,12 +579,12 @@ export default function ApiKeys() {
           {
             title: "① 安装 CLI",
             code: CLI_INSTALL,
-            hint: "装到 ~/.local/bin/minitv，需要 python3 ≥ 3.8；重复执行即升级。",
+            hint: "装到 ~/.local/bin/leapdrama，需要 python3 ≥ 3.8；重复执行即升级。",
           },
           {
             title: "② 设置 API Key",
             code: CLI_SET_KEY,
-            hint: "隐藏输入、先校验再落盘；也可 echo \"$KEY\" | minitv config set-key --stdin。",
+            hint: "隐藏输入、先校验再落盘；也可 echo \"$KEY\" | leapdrama config set-key --stdin。",
           },
           {
             title: "③ 自检",

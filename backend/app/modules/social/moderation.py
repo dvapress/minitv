@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_CATEGORIES = ["sexual", "violence", "hate", "harassment", "spam", "privacy", "illegal"]
 
-DEFAULT_SYSTEM_PROMPT = """You are the comment moderator for MiniTV, a short-drama streaming app.
+DEFAULT_SYSTEM_PROMPT = """You are the comment moderator for LeapDrama, a short-drama streaming app.
 Classify the user comment and return JSON only:
 {"verdict": "allow" | "review" | "block", "score": 0.0-1.0, "reason": "at most 20 words"}
 
@@ -97,7 +97,7 @@ def _fernet():
     if not secret:
         # Local/test convenience only. Production sets MODERATION_KEY_SECRET;
         # without it this is obfuscation, not real encryption.
-        secret = "|minitv-moderation|" + (os.environ.get("DATABASE_URL", "") or "local")
+        secret = "|leapdrama-moderation|" + (os.environ.get("DATABASE_URL", "") or "local")
     digest = hashlib.sha256(secret.encode("utf-8")).digest()
     return Fernet(base64.urlsafe_b64encode(digest))
 

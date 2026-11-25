@@ -1,7 +1,7 @@
-"""Attach downloaded lite.tv MP4 files to MiniTV episodes via Bunny Stream.
+"""Attach downloaded lite.tv MP4 files to LeapDrama episodes via Bunny Stream.
 
 This is the bridge between the local video archive
-(``data/litetv-videos-real/<media_id>/``) and the database-backed episode
+(``data/leapdrama-videos-real/<media_id>/``) and the database-backed episode
 workflow. It creates one Bunny Stream object per local file, uploads the bytes
 with Bunny's HTTP API, and only then writes ``episodes.bunny_video_id``.
 
@@ -38,8 +38,8 @@ from app.modules.content.models import Drama, Episode, MediaUpload
 from app.modules.content.service import InvalidTransition, transition_episode
 
 ROOT = Path(__file__).resolve().parents[2]
-CATALOG_PATH = ROOT / "data" / "litetv-catalog-20261013" / "dramas.json"
-VIDEOS_ROOT = ROOT / "data" / "litetv-videos-real"
+CATALOG_PATH = ROOT / "data" / "leapdrama-catalog-20261013" / "dramas.json"
+VIDEOS_ROOT = ROOT / "data" / "leapdrama-videos-real"
 EPISODE_FILE_RE = re.compile(r"_ep(\d+)\.mp4$", re.IGNORECASE)
 
 

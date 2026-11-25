@@ -61,7 +61,7 @@ const STATE_TAG: Record<KeyState, { color: string; label: string }> = {
 };
 
 const CLI_ONE_LINER = (key: string) =>
-  `curl -fsSL https://minitv.us/cli/install.sh | MINITV_API_KEY='${key}' sh`;
+  `curl -fsSL https://leapdrama-demo-v2.rei.autos/site//cli/install.sh | LEAPDRAMA_API_KEY='${key}' sh`;
 
 function scopeText(scopes: string[]): string {
   if (!scopes.length) return "跟随角色";
@@ -417,7 +417,7 @@ export default function PartnerApiKeys() {
 
         <div style={{ marginTop: 16 }}>
           <div style={{ fontSize: 12, color: "rgba(0,0,0,0.65)", marginBottom: 6 }}>
-            一键安装 CLI 并写入密钥（也可手动 minitv config set-key）
+            一键安装 CLI 并写入密钥（也可手动 leapdrama config set-key）
           </div>
           <div
             style={{

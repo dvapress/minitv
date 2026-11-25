@@ -9,7 +9,7 @@ import '../session.dart';
 import '../toast.dart';
 import '../ui.dart';
 
-const _checkinKey = 'minitv_app_checkin';
+const _checkinKey = 'leapdrama_app_checkin';
 
 String _localDay() {
   final now = DateTime.now();

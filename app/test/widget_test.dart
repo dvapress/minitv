@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:minitv/main.dart';
-import 'package:minitv/session.dart';
-import 'package:minitv/ui.dart';
+import 'package:leapdrama/main.dart';
+import 'package:leapdrama/session.dart';
+import 'package:leapdrama/ui.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +14,7 @@ void main() {
   testWidgets('home shell shows four navigation labels', (tester) async {
     final session = Session();
     await session.restore();
-    await tester.pumpWidget(MiniTvApp(session: session));
+    await tester.pumpWidget(LeapDramaApp(session: session));
     await tester.pump();
     expect(find.text('Home'), findsWidgets);
     expect(find.text('For You'), findsOneWidget);

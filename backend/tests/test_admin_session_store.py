@@ -1,6 +1,6 @@
 """Redis 会话存储不可用时的错误语义：明确的 503，而不是裸 500。
 
-背景（2026-10-14 实际故障）：本地 Docker 退出导致 minitv-redis 停止，
+背景（2026-10-14 实际故障）：本地 Docker 退出导致 leapdrama-redis 停止，
 require_admin 依赖连接 Redis 抛 ConnectionError，被 FastAPI 兜底成 500，
 后台页面只显示「加载失败：API error 500」，看不出真实原因。现在统一转成
 带中文说明的 503，前端 errorText() 会直接展示这条说明。

@@ -1,4 +1,4 @@
-/** Typed fetchers for the public MiniTV API. */
+/** Typed fetchers for the public LeapDrama API. */
 
 export type Drama = { id: number; title: string; cover_url: string; play_count: number };
 
@@ -81,11 +81,11 @@ export type PlaybackAuth = {
  *
  * The marketing site is served straight from R2, so there is no reverse proxy:
  * a production build that somehow lacks the env var would request /v1/... on
- * minitv.us itself, get a 404 from the CDN and render "Could not load MiniTV".
+ * leapdrama-demo-v2.rei.autos itself, get a 404 from the CDN and render "Could not load LeapDrama".
  * Fall back to the public API host instead of shipping a dead page.
  */
 export const API_BASE = (
-  import.meta.env.VITE_API_BASE ?? (import.meta.env.PROD ? "https://api.minitv.us" : "")
+  import.meta.env.VITE_API_BASE ?? ""
 ).replace(/\/$/, "");
 
 function apiUrl(path: string): string {

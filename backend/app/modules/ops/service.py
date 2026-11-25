@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from app.db import load_env
 from app.modules.ops.models import AdminUser
 
-SESSION_PREFIX = "minitv_admin_session:"
+SESSION_PREFIX = "leapdrama_admin_session:"
 SESSION_TTL = timedelta(hours=8)
 
 _redis_client = None
@@ -30,7 +30,7 @@ class SessionStoreUnavailable(Exception):
     """Redis (the admin session store) is unreachable.
 
     The ops router maps this to HTTP 503 with an actionable message; a bare
-    500 would hide the real cause (usually the local ``minitv-redis``
+    500 would hide the real cause (usually the local ``leapdrama-redis``
     container being down).
     """
 
@@ -39,7 +39,7 @@ def get_redis():
     global _redis_client
     if _redis_client is None:
         load_env()
-        url = os.environ.get("REDIS_URL", "redis://:minitv_local@127.0.0.1:16379/0")
+        url = os.environ.get("REDIS_URL", "redis://:leapdrama_local@127.0.0.1:16379/0")
         _redis_client = redis_lib.Redis.from_url(url, decode_responses=True)
     return _redis_client
 

@@ -1,15 +1,15 @@
 #!/bin/sh
-# MiniTV CLI installer.
+# LeapDrama CLI installer.
 #
-#   curl -fsSL https://minitv.us/cli/install.sh | sh
-#   curl -fsSL https://minitv.us/cli/install.sh | MINITV_API_KEY='mk_live_...' sh
+#   curl -fsSL https://leapdrama-demo-v2.rei.autos/site//cli/install.sh | sh
+#   curl -fsSL https://leapdrama-demo-v2.rei.autos/site//cli/install.sh | LEAPDRAMA_API_KEY='mk_live_...' sh
 #
-# 行为：校验 python3 → 下载单文件到 ~/.local/bin/minitv → 可选写入 API Key →
-# 自检。幂等：重复执行是覆盖升级，没给 MINITV_API_KEY 时不动已保存的密钥。
+# 行为：校验 python3 → 下载单文件到 ~/.local/bin/leapdrama → 可选写入 API Key →
+# 自检。幂等：重复执行是覆盖升级，没给 LEAPDRAMA_API_KEY 时不动已保存的密钥。
 set -eu
 
-BASE="${MINITV_CLI_BASE:-https://minitv.us/cli}"
-PREFIX="${MINITV_BIN_DIR:-$HOME/.local/bin}"
+BASE="${LEAPDRAMA_CLI_BASE:-https://leapdrama-demo-v2.rei.autos/site//cli}"
+PREFIX="${LEAPDRAMA_BIN_DIR:-$HOME/.local/bin}"
 DO_DOCTOR=1
 MIN_PY="3.8"
 
@@ -22,17 +22,17 @@ while [ $# -gt 0 ]; do
     --base=*) BASE="${1#*=}"; shift ;;
     -h|--help)
       cat <<'USAGE'
-minitv install.sh
+leapdrama install.sh
 
 用法: sh install.sh [--prefix DIR] [--base URL] [--no-doctor]
 
   --prefix DIR   安装目录（默认 ~/.local/bin）
-  --base URL     下载基址（默认 https://minitv.us/cli）
-  --no-doctor    装完不跑 minitv doctor
+  --base URL     下载基址（默认 https://leapdrama-demo-v2.rei.autos/site//cli）
+  --no-doctor    装完不跑 leapdrama doctor
   -h, --help     显示本说明
 
 环境变量:
-  MINITV_API_KEY 提供时自动写入（经 stdin，不进进程参数）；缺省则只安装。
+  LEAPDRAMA_API_KEY 提供时自动写入（经 stdin，不进进程参数）；缺省则只安装。
 USAGE
       exit 0
       ;;
@@ -56,8 +56,8 @@ say "python3  $("$PY" -c 'import sys; print(".".join(map(str, sys.version_info[:
 
 # ---- 2. download ----
 mkdir -p "$PREFIX" || fail "无法创建目录 $PREFIX"
-TMP="$PREFIX/.minitv.download.$$"
-URL="$BASE/minitv"
+TMP="$PREFIX/.leapdrama.download.$$"
+URL="$BASE/leapdrama"
 say "下载      $URL"
 if command -v curl >/dev/null 2>&1; then
   curl -fsSL "$URL" -o "$TMP" || { rm -f "$TMP"; fail "下载失败：$URL"; }
@@ -66,10 +66,10 @@ elif command -v wget >/dev/null 2>&1; then
 else
   fail "系统里没有 curl 或 wget"
 fi
-head -n 1 "$TMP" | grep -q "python" || { rm -f "$TMP"; fail "下载到的内容不是 minitv（检查 $BASE）"; }
+head -n 1 "$TMP" | grep -q "python" || { rm -f "$TMP"; fail "下载到的内容不是 leapdrama（检查 $BASE）"; }
 chmod 0755 "$TMP"
-mv "$TMP" "$PREFIX/minitv"
-say "已安装    $PREFIX/minitv"
+mv "$TMP" "$PREFIX/leapdrama"
+say "已安装    $PREFIX/leapdrama"
 
 case ":$PATH:" in
   *":$PREFIX:"*) ;;
@@ -77,25 +77,25 @@ case ":$PATH:" in
      say "          export PATH=\"$PREFIX:\$PATH\"" ;;
 esac
 
-MINITV="$PREFIX/minitv"
+LEAPDRAMA="$PREFIX/leapdrama"
 
 # ---- 3. key ----
-if [ -n "${MINITV_API_KEY:-}" ]; then
+if [ -n "${LEAPDRAMA_API_KEY:-}" ]; then
   # stdin, not argv: the key must never show up in `ps`.
-  if printf '%s' "$MINITV_API_KEY" | "$MINITV" config set-key --stdin; then
+  if printf '%s' "$LEAPDRAMA_API_KEY" | "$LEAPDRAMA" config set-key --stdin; then
     say "密钥      已写入本地凭据文件"
   else
     fail "密钥校验失败，未写入（磁盘上的旧密钥保持不变）"
   fi
 else
-  say "密钥      未提供；稍后运行 $MINITV config set-key"
+  say "密钥      未提供；稍后运行 $LEAPDRAMA config set-key"
 fi
 
 # ---- 4. doctor ----
-if [ "$DO_DOCTOR" = "1" ] && [ -n "${MINITV_API_KEY:-}" ]; then
+if [ "$DO_DOCTOR" = "1" ] && [ -n "${LEAPDRAMA_API_KEY:-}" ]; then
   say ""
-  "$MINITV" doctor || say "提示      doctor 未全部通过，按上面的提示处理"
+  "$LEAPDRAMA" doctor || say "提示      doctor 未全部通过，按上面的提示处理"
 fi
 
 say ""
-say "下一步    $MINITV guide     # 完整手册"
+say "下一步    $LEAPDRAMA guide     # 完整手册"

@@ -160,8 +160,8 @@ const context = await browser.newContext({
   hasTouch: true,
 });
 await context.addInitScript((token) => {
-  localStorage.setItem("minitv_h5_token", token);
-  localStorage.setItem("minitv_h5_locale", "zh");
+  localStorage.setItem("leapdrama_token", token);
+  localStorage.setItem("leapdrama_locale", "zh");
 }, TOKEN);
 
 const page = await context.newPage();
@@ -222,7 +222,7 @@ check(errors.length === 0, `no console errors (${errors.join(" | ") || "none"})`
 
 const guest = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 const guestPage = await guest.newPage();
-await guestPage.addInitScript(() => localStorage.setItem("minitv_h5_locale", "zh"));
+await guestPage.addInitScript(() => localStorage.setItem("leapdrama_locale", "zh"));
 await guestPage.route("**/v1/**", buildRoutes);
 await guestPage.goto(APP_URL, { waitUntil: "networkidle" });
 await guestPage.waitForSelector('[data-tab="rewards"]', { timeout: 15000 });

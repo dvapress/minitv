@@ -18,7 +18,7 @@ export function PosterImage({ src, alt }: { src: string; alt: string }) {
   if (!src || failed) {
     return (
       <span className="poster-fallback" aria-hidden="true">
-        <img className="brand-mark" src="/brand/minitv-icon.png" alt="" />
+        <img className="brand-mark" src="/brand/leapdrama-icon.png" alt="" />
       </span>
     );
   }

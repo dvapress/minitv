@@ -9,7 +9,7 @@
  * Google avatars, marketing-site assets — is returned untouched. Signed URLs
  * (subtitles) must never go through here.
  */
-const IMAGE_CDN_HOST = "minitv-dev-img.b-cdn.net";
+const IMAGE_CDN_HOST = "cdn.leapdrama.local";
 
 /** Display widths, in CSS px × DPR headroom, matching the layout in styles.css. */
 export const IMG = {

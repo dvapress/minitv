@@ -671,7 +671,7 @@ def _stripe_request(path: str, data: dict | None = None, method: str = "POST") -
         method = "GET"
     request = urllib.request.Request(f"{STRIPE_API}{path}", data=payload, method=method)
     request.add_header("Authorization", f"Bearer {stripe_secret()}")
-    request.add_header("User-Agent", "minitv-billing/1.0")
+    request.add_header("User-Agent", "leapdrama-billing/1.0")
     try:
         with urllib.request.urlopen(request, timeout=20) as response:
             return json.loads(response.read().decode())
@@ -776,7 +776,7 @@ def create_checkout_session(
 
     mode = billing_mode(session)
     ensure_chargeable(mode, version.price_cents, version.currency)
-    base = os.environ.get("H5_PUBLIC_BASE_URL", "https://h5.minitv.us").rstrip("/")
+    base = os.environ.get("H5_PUBLIC_BASE_URL", "https://leapdrama-demo-v2.rei.autos").rstrip("/")
     data = {
         "mode": "payment" if mode == "one_time" else "subscription",
         "line_items[0][price]": ensure_stripe_price(session, plan, version, mode),

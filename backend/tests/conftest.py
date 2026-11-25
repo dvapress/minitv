@@ -1,4 +1,4 @@
-"""Pytest fixtures: a dedicated minitv_test database provisioned by Alembic.
+"""Pytest fixtures: a dedicated leapdrama_test database provisioned by Alembic.
 
 The test database is created from scratch via `alembic upgrade head`, so the
 tests always exercise the real migration (tables, constraints, triggers).
@@ -37,13 +37,13 @@ os.environ["PAY_WEBHOOK_SECRET"] = "test-pay-webhook"
 from app import modules  # noqa: E402,F401  registers every ORM model
 from app.db import Base, load_env  # noqa: E402
 
-TEST_DB_NAME = os.environ.get("MINITV_TEST_DB", "minitv_test")
+TEST_DB_NAME = os.environ.get("LEAPDRAMA_TEST_DB", "leapdrama_test")
 
 
 def _admin_url() -> str:
     load_env()
     return os.environ.get(
-        "DATABASE_URL", "postgresql://minitv:minitv_local@127.0.0.1:15432/minitv"
+        "DATABASE_URL", "postgresql://leapdrama:leapdrama_local@127.0.0.1:15432/leapdrama"
     )
 
 
@@ -68,8 +68,8 @@ def engine():
     # TestClient's lazy engine follows DATABASE_URL -> both point at the test db.
     os.environ["ALEMBIC_DATABASE_URL"] = url
     os.environ["DATABASE_URL"] = url
-    base_redis = os.environ.get("REDIS_URL", "redis://:minitv_local@127.0.0.1:16379/0")
-    redis_db = os.environ.get("MINITV_TEST_REDIS_DB", "15")
+    base_redis = os.environ.get("REDIS_URL", "redis://:leapdrama_local@127.0.0.1:16379/0")
+    redis_db = os.environ.get("LEAPDRAMA_TEST_REDIS_DB", "15")
     os.environ["REDIS_URL"] = base_redis.rsplit("/", 1)[0] + f"/{redis_db}"  # dedicated test db
     cfg = Config(str(BACKEND / "alembic.ini"))
     cfg.set_main_option("script_location", str(BACKEND / "alembic"))

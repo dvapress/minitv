@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:minitv/player.dart';
-import 'package:minitv/screens/episode_player.dart';
+import 'package:leapdrama/player.dart';
+import 'package:leapdrama/screens/episode_player.dart';
 
 /// Records play/pause calls instead of touching a real video surface.
 class _FakePlayer extends MiniPlayer {

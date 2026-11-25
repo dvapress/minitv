@@ -1,4 +1,4 @@
-# AGENTS.md — LiteTV 仓库工作须知
+# AGENTS.md — LeapDrama 仓库工作须知
 
 ## 项目服务器（2026-10-14 起）
 

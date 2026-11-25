@@ -78,7 +78,7 @@ def verify(access_token: str | None = None, id_token: str | None = None) -> Face
 
 def _request_json(path: str, params: dict[str, str]) -> dict:
     url = f"{path}?{urllib.parse.urlencode(params)}"
-    request = urllib.request.Request(url, headers={"User-Agent": "minitv-facebook"})
+    request = urllib.request.Request(url, headers={"User-Agent": "leapdrama-facebook"})
     try:
         with urllib.request.urlopen(request, timeout=10) as response:
             payload = json.loads(response.read().decode())
@@ -100,7 +100,7 @@ def _certs() -> list[dict]:
     now = time.time()
     if _certs_cache is not None and _certs_cache[0] > now:
         return _certs_cache[1]
-    request = urllib.request.Request(FACEBOOK_JWKS_URL, headers={"User-Agent": "minitv-facebook"})
+    request = urllib.request.Request(FACEBOOK_JWKS_URL, headers={"User-Agent": "leapdrama-facebook"})
     try:
         with urllib.request.urlopen(request, timeout=10) as response:
             payload = json.loads(response.read().decode())

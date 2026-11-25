@@ -29,9 +29,9 @@ for (const c of cases) {
   });
   const page = await ctx.newPage();
   await page.addInitScript((loc) => {
-    localStorage.setItem("minitv_h5_locale", loc);
-    if (!localStorage.getItem("minitv_h5_device")) {
-      localStorage.setItem("minitv_h5_device", "e2e-meta-" + Math.random().toString(36).slice(2, 10));
+    localStorage.setItem("leapdrama_locale", loc);
+    if (!localStorage.getItem("leapdrama_device")) {
+      localStorage.setItem("leapdrama_device", "e2e-meta-" + Math.random().toString(36).slice(2, 10));
     }
   }, c.locale);
 

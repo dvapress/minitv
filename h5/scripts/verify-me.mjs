@@ -12,12 +12,12 @@ const OUT = "/tmp/h5me";
 const TOKEN = "test-token-42";
 
 const covers = {
-  a: "https://minitv-dev-img.b-cdn.net/covers/77/cover.jpg",
-  b: "https://minitv-dev-img.b-cdn.net/covers/114/cover.jpg",
-  c: "https://minitv-dev-img.b-cdn.net/covers/45/cover.jpg",
-  d: "https://minitv-dev-img.b-cdn.net/covers/78/cover.jpg",
-  e: "https://minitv-dev-img.b-cdn.net/covers/110/cover.jpg",
-  f: "https://minitv-dev-img.b-cdn.net/covers/9/cover.jpg",
+  a: "https://cdn.leapdrama.local/covers/77/cover.jpg",
+  b: "https://cdn.leapdrama.local/covers/114/cover.jpg",
+  c: "https://cdn.leapdrama.local/covers/45/cover.jpg",
+  d: "https://cdn.leapdrama.local/covers/78/cover.jpg",
+  e: "https://cdn.leapdrama.local/covers/110/cover.jpg",
+  f: "https://cdn.leapdrama.local/covers/9/cover.jpg",
 };
 
 const me = {
@@ -66,7 +66,7 @@ const messages = {
   unread: 1,
   items: [
     { id: 3, kind: "system", title: "New episodes are in", body: "My Bodyguard Husband Is the Boss just added 3 episodes.", read: false },
-    { id: 2, kind: "system", title: "Welcome to MiniTV", body: "Your watch history and favorites sync across devices.", read: true },
+    { id: 2, kind: "system", title: "Welcome to LeapDrama", body: "Your watch history and favorites sync across devices.", read: true },
   ],
 };
 
@@ -153,7 +153,7 @@ const context = await browser.newContext({
   isMobile: true,
   hasTouch: true,
 });
-await context.addInitScript((token) => localStorage.setItem("minitv_h5_token", token), TOKEN);
+await context.addInitScript((token) => localStorage.setItem("leapdrama_token", token), TOKEN);
 
 const page = await context.newPage();
 const errors = [];
@@ -172,7 +172,7 @@ await page.waitForTimeout(900);
 await page.screenshot({ path: `${OUT}-page.png` });
 
 check((await page.locator(".me-hero h2").innerText()).trim() === "mygodis", "profile name renders");
-check((await page.locator(".me-uid").innerText()).includes("6168731156"), "MiniTV id renders");
+check((await page.locator(".me-uid").innerText()).includes("6168731156"), "LeapDrama id renders");
 check((await page.locator('[data-testid="me-coins"]').innerText()).trim() === "80", "coin balance renders");
 check((await page.locator(".me-tab.on").innerText()).trim() === "History", "history tab is the default");
 check((await page.locator(".me-grid .card").count()) === 6, "history grid de-duplicates to one card per drama");

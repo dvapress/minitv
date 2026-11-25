@@ -7,7 +7,7 @@
 /// Only the image pull zone understands these params, so every other host —
 /// Google avatars, marketing-site assets — is returned untouched. Signed URLs
 /// (subtitles) must never go through here.
-const imageCdnHost = 'minitv-dev-img.b-cdn.net';
+const imageCdnHost = 'cdn.leapdrama.local';
 
 /// Bunny Optimizer only returns WebP when the client advertises it — browsers
 /// do that for H5, Dart's `HttpClient` does not (it would get the JPEG variant,

@@ -12,7 +12,7 @@ module enforces:
 * Redis is used for rate limiting and for throttling ``last_used_at`` writes,
   but an outage there must not lock anyone out (both paths fail open).
 
-Sessions (``minitv_admin_session:*``) are untouched: they are a separate
+Sessions (``leapdrama_admin_session:*``) are untouched: they are a separate
 credential type resolved by ``ops.service.resolve_session_token``.
 """
 
@@ -155,7 +155,7 @@ def _enforce_rate_limit(key_id: int) -> None:
     if limit <= 0:
         return
     minute = int(time.time() // 60)
-    bucket = f"minitv_key_rl:{key_id}:{minute}"
+    bucket = f"leapdrama_key_rl:{key_id}:{minute}"
     try:
         pipe = ops_service.get_redis().pipeline()
         pipe.incr(bucket)
@@ -175,7 +175,7 @@ def _touch(db: Session, key: AdminApiKey) -> None:
     """Record last use at most once a minute to keep GETs cheap."""
     try:
         fresh = ops_service.get_redis().set(
-            f"minitv_key_touch:{key.id}", "1", nx=True, ex=60
+            f"leapdrama_key_touch:{key.id}", "1", nx=True, ex=60
         )
     except redis_lib.RedisError:
         fresh = True

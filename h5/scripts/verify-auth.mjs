@@ -257,7 +257,7 @@ async function newPage(options = {}) {
   await page.getByRole("button", { name: "Verify and sign in" }).click();
   await page.waitForSelector('[data-testid="login-sheet"]', { state: "detached", timeout: 8000 });
 
-  const stored = await page.evaluate(() => localStorage.getItem("minitv_h5_token"));
+  const stored = await page.evaluate(() => localStorage.getItem("leapdrama_token"));
   check(stored === TOKEN, "session token is persisted");
   await page.waitForTimeout(400);
   check(
@@ -288,7 +288,7 @@ async function newPage(options = {}) {
   await page.waitForSelector('[data-testid="settings-sheet"]', { timeout: 5000 });
   await page.getByRole("button", { name: "Sign out" }).click();
   await page.waitForSelector(".me-cta", { timeout: 5000 });
-  check((await page.evaluate(() => localStorage.getItem("minitv_h5_token"))) === null, "sign out clears the token");
+  check((await page.evaluate(() => localStorage.getItem("leapdrama_token"))) === null, "sign out clears the token");
   check((await page.locator(".me-hero h2").innerText()).includes("Sign in"), "sign out returns the guest state");
 
   const unexpected = errors.filter((text) => !/status of 400/.test(text));
@@ -333,7 +333,7 @@ async function newPage(options = {}) {
     hasTouch: true,
   });
   await context.addInitScript(() => {
-    localStorage.setItem("minitv_h5_token", "expired-token");
+    localStorage.setItem("leapdrama_token", "expired-token");
   });
   const page = await context.newPage();
   await page.route("**/v1/**", buildRoutes(calls, { google: false }));
@@ -343,7 +343,7 @@ async function newPage(options = {}) {
   await page.locator('[data-tab="me"]').click();
   await page.waitForSelector(".me-cta", { timeout: 8000 });
   check(
-    (await page.evaluate(() => localStorage.getItem("minitv_h5_token"))) === null,
+    (await page.evaluate(() => localStorage.getItem("leapdrama_token"))) === null,
     "an expired stored token is cleared on boot",
   );
   check((await page.locator(".me-hero h2").innerText()).includes("Sign in"), "expired session lands on the guest state");
@@ -354,7 +354,7 @@ async function newPage(options = {}) {
 {
   const calls = { code: [], verify: [], reactions: [], google: [] };
   const { context, page, errors } = await newPage();
-  await context.addInitScript((token) => localStorage.setItem("minitv_h5_token", token), TOKEN);
+  await context.addInitScript((token) => localStorage.setItem("leapdrama_token", token), TOKEN);
   const feedDrama = { ...drama, like_count: 3, liked: true };
   await page.route("**/v1/**", buildRoutes(calls, {
     google: false,
@@ -422,7 +422,7 @@ async function newPage(options = {}) {
 {
   const calls = { code: [], verify: [], reactions: [], google: [] };
   const { context, page } = await newPage();
-  await context.addInitScript((token) => localStorage.setItem("minitv_h5_token", token), TOKEN);
+  await context.addInitScript((token) => localStorage.setItem("leapdrama_token", token), TOKEN);
   await page.route("**/v1/**", buildRoutes(calls, { google: false, reactionStatus: 500 }));
   await page.goto(APP_URL, { waitUntil: "networkidle" });
   await page.waitForSelector(".card", { timeout: 15000 });

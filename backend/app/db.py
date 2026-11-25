@@ -1,4 +1,4 @@
-"""Database engine and declarative base for MiniTV."""
+"""Database engine and declarative base for LeapDrama."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ def database_url() -> str:
     load_env()
     url = os.environ.get(
         "DATABASE_URL",
-        "postgresql://minitv:minitv_local@127.0.0.1:15432/minitv",
+        "postgresql://leapdrama:leapdrama_local@127.0.0.1:15432/leapdrama",
     )
     if url.startswith("postgresql://"):
         return "postgresql+psycopg://" + url[len("postgresql://"):]
