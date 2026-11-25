@@ -195,7 +195,7 @@ function HomePage() {
           </div>
           <div className="hero-art">
             <div className="phone">
-              <img src="/ph_feed.png?v=4" alt="LeapDrama vertical player preview" />
+              <img src="/ph_feed.png?v=5" alt="LeapDrama vertical player preview" />
             </div>
             {rating && <div className="chip chip-top">★ {rating.value} {t("rating", "评分")}</div>}
             {downloads && <div className="chip chip-bottom">{downloads.value} {t("plays", "次观看")}</div>}
