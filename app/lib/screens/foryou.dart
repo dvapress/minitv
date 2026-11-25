@@ -488,7 +488,7 @@ class _AvatarBadge extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.white, width: 1.5),
                 image: hasImage
-                    ? DecorationImage(image: NetworkImage(src, headers: imageAcceptHeaders), fit: BoxFit.cover)
+                    ? DecorationImage(image: NetworkImage(src, headers: imageHeadersFor(src)), fit: BoxFit.cover)
                     : null,
                 color: sheet,
               ),

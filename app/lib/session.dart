@@ -22,6 +22,8 @@ class Session extends ChangeNotifier {
   /// True while the saved token is being validated on boot.
   bool booting = true;
   bool loginOpen = false;
+  bool gateOpen = false;
+  int gateVersion = 0;
   VoidCallback? _pendingAction;
 
   bool get isSignedIn => token != null && user != null;
@@ -33,6 +35,7 @@ class Session extends ChangeNotifier {
 
   Session() {
     MiniApi.onUnauthorized = _handleUnauthorized;
+    MiniApi.onGateRequired = _handleGateRequired;
   }
 
   /// Restore the saved token and validate it against `/v1/me`.
@@ -52,13 +55,13 @@ class Session extends ChangeNotifier {
     try {
       user = await api.getJson('/v1/me');
     } on ApiException catch (error) {
-      if (error.status == 401) {
+      if (error.status == 401 && error.message != 'Gate authentication required') {
         // Dead token: drop it and fall back to guest.
         await _save(null);
         token = null;
         user = null;
       }
-      // A network error keeps the token so the next launch retries.
+      // A network or gate error keeps the token so the next launch retries.
     }
     booting = false;
     notifyListeners();
@@ -104,6 +107,21 @@ class Session extends ChangeNotifier {
     user = null;
     await _save(null);
     notifyListeners();
+  }
+
+  void _handleGateRequired() {
+    if (gateOpen) return;
+    gateOpen = true;
+    notifyListeners();
+  }
+
+  void completeGateUnlock() {
+    gateOpen = false;
+    gateVersion++;
+    notifyListeners();
+    if (token != null && user == null) {
+      restore();
+    }
   }
 
   void _handleUnauthorized() {

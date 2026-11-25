@@ -6,6 +6,7 @@ import 'api.dart';
 import 'copy.dart';
 import 'screens/detail.dart';
 import 'screens/foryou.dart';
+import 'screens/gate_sheet.dart';
 import 'screens/home.dart';
 import 'screens/login_sheet.dart';
 import 'screens/me.dart';
@@ -18,6 +19,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await initDeviceId();
+    await initGateCookie();
   } catch (_) {
     // A broken plugin build must not keep the app on the splash screen; the
     // guest device id falls back to a value generated on first use.
@@ -165,8 +167,14 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Positioned.fill(child: body),
+          Positioned.fill(
+            child: KeyedSubtree(
+              key: ValueKey('gate-${session.gateVersion}'),
+              child: body,
+            ),
+          ),
           if (session.loginOpen) Positioned.fill(child: LoginSheet(session: session, language: widget.language)),
+          if (session.gateOpen) Positioned.fill(child: GateSheet(session: session, language: widget.language)),
         ],
       ),
       // The drama play page is full-bleed (design draft P8): no tab bar.

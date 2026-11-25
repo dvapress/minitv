@@ -1,5 +1,7 @@
 import 'package:video_player/video_player.dart';
 
+import 'api.dart';
+
 /// Playback surface used by For You and the player sheets.
 /// Token refresh stays outside this class.
 class MiniPlayer {
@@ -7,7 +9,11 @@ class MiniPlayer {
 
   Future<void> load(String url) async {
     await release();
-    final controller = VideoPlayerController.networkUrl(Uri.parse(url));
+    final resolved = resolveApiUrl(url);
+    final controller = VideoPlayerController.networkUrl(
+      Uri.parse(resolved),
+      httpHeaders: apiCookieHeaders(resolved),
+    );
     _controller = controller;
     await controller.initialize();
   }

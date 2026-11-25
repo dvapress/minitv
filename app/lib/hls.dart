@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'api.dart';
+
 /// One selectable rendition parsed out of an HLS master playlist.
 class HlsVariant {
   const HlsVariant({
@@ -76,14 +78,20 @@ int _rungNumber(String label) => int.tryParse(label.replaceAll(RegExp(r'[^0-9]')
 /// Fetch and parse the master playlist. Never throws: on any failure the
 /// caller simply keeps Auto (the player then adapts on its own).
 Future<List<HlsVariant>> loadHlsVariants(String masterUrl) async {
+  final resolved = resolveApiUrl(masterUrl);
+  final uri = Uri.tryParse(resolved);
+  if (uri == null || !uri.path.toLowerCase().endsWith('.m3u8')) {
+    return const [];
+  }
   final client = HttpClient();
   try {
-    final request = await client.getUrl(Uri.parse(masterUrl));
-    request.headers.set(HttpHeaders.userAgentHeader, 'LeapDrama/1.0 (iOS)');
+    final request = await client.getUrl(uri);
+    request.headers.set(HttpHeaders.userAgentHeader, 'LeapDrama/1.0 (Android)');
+    apiCookieHeaders(resolved).forEach(request.headers.set);
     final response = await request.close();
     if (response.statusCode != 200) return const [];
     final text = await response.transform(utf8.decoder).join();
-    return parseMasterPlaylist(text, Uri.parse(masterUrl));
+    return parseMasterPlaylist(text, uri);
   } catch (_) {
     return const [];
   } finally {

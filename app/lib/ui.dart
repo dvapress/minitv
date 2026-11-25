@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'api.dart';
 import 'img.dart';
 
 const bg = Color(0xFF0C0A0B);
@@ -40,7 +41,7 @@ class Poster extends StatelessWidget {
                 src,
                 fit: BoxFit.cover,
                 cacheWidth: imgWidth,
-                headers: imageAcceptHeaders,
+                headers: imageHeadersFor(src),
                 errorBuilder: (_, _, _) => const ColoredBox(color: sheet),
               ),
       ),
@@ -63,14 +64,14 @@ class PosterImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final src = imgWidth == null ? (url ?? '') : imgUrl(url, imgWidth!);
+    final src = imgWidth == null ? resolveApiUrl(url) : imgUrl(url, imgWidth!);
     final image = src.isEmpty
         ? const ColoredBox(color: sheet)
         : Image.network(
             src,
             fit: BoxFit.cover,
             cacheWidth: imgWidth,
-            headers: imageAcceptHeaders,
+            headers: imageHeadersFor(src),
             errorBuilder: (_, _, _) => const ColoredBox(color: sheet),
           );
     final clipped = ClipRRect(borderRadius: BorderRadius.circular(8), child: image);
@@ -118,7 +119,7 @@ class UserAvatar extends StatelessWidget {
           : Image.network(
               src,
               fit: BoxFit.cover,
-              headers: imageAcceptHeaders,
+              headers: imageHeadersFor(src),
               errorBuilder: (_, _, _) =>
                   Center(child: Text(initial, style: const TextStyle(color: red, fontSize: 15, fontWeight: FontWeight.w900))),
             ),

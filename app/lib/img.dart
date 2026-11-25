@@ -1,3 +1,5 @@
+import 'api.dart';
+
 /// Bunny Optimizer thumbnail helpers — the App twin of `h5/src/img.ts`.
 ///
 /// Covers live in the Bunny Storage zone behind the image pull zone. With
@@ -13,6 +15,9 @@ const imageCdnHost = 'cdn.leapdrama.local';
 /// do that for H5, Dart's `HttpClient` does not (it would get the JPEG variant,
 /// ~58 KB instead of ~34 KB at card size).
 const imageAcceptHeaders = {'Accept': 'image/webp,image/*,*/*'};
+
+/// Image request headers with optional same-origin staging gate cookie.
+Map<String, String> imageHeadersFor(String url) => apiCookieHeaders(url, base: imageAcceptHeaders);
 
 /// Display widths in physical pixels (logical px × DPR headroom), matching the
 /// layout in `screens/home.dart` / `screens/channel.dart` and the scale used by
@@ -38,15 +43,16 @@ class Img {
 /// Returns [url] with Bunny Optimizer width/quality params, or untouched when
 /// the URL is not on the image pull zone (or already carries a size).
 String imgUrl(String? url, int width, {int quality = 75}) {
-  if (url == null || url.isEmpty) return '';
+  final resolved = resolveApiUrl(url);
+  if (resolved.isEmpty) return '';
 
-  final parsed = Uri.tryParse(url);
-  if (parsed == null) return url;
-  if (parsed.scheme != 'http' && parsed.scheme != 'https') return url;
-  if (parsed.host != imageCdnHost) return url;
+  final parsed = Uri.tryParse(resolved);
+  if (parsed == null) return resolved;
+  if (parsed.scheme != 'http' && parsed.scheme != 'https') return resolved;
+  if (parsed.host != imageCdnHost) return resolved;
 
   final query = parsed.queryParameters;
-  if (query.containsKey('width') || query.containsKey('height')) return url;
+  if (query.containsKey('width') || query.containsKey('height')) return resolved;
 
   return parsed.replace(queryParameters: {
     ...query,
