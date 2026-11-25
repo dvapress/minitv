@@ -36,6 +36,8 @@ class _LoginSheetState extends State<LoginSheet> {
   final code = TextEditingController();
   String step = 'email'; // email | code
   String? error;
+  String? demoCode;
+  bool? isNewUser;
   String busy = ''; // sending | verifying
   int cooldown = 0;
   Timer? timer;
@@ -98,9 +100,12 @@ class _LoginSheetState extends State<LoginSheet> {
       error = null;
     });
     try {
-      await MiniApi().postJson('/v1/auth/email/code', {'email': value, 'purpose': 'login'});
+      final res = await MiniApi().postJson('/v1/auth/email/code', {'email': value, 'purpose': 'login'});
+      final nextDemo = res['demo_code'] as String?;
       setState(() {
         email.text = value;
+        isNewUser = res['is_new_user'] as bool?;
+        demoCode = (nextDemo != null && nextDemo.isNotEmpty) ? nextDemo : null;
         code.clear();
         step = 'code';
         cooldown = _resendSeconds;
@@ -222,6 +227,7 @@ class _LoginSheetState extends State<LoginSheet> {
   }
 
   Widget _codeStep() {
+    final zh = widget.language == 'zh';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -229,6 +235,48 @@ class _LoginSheetState extends State<LoginSheet> {
           copy.t('code_sent_to', {'email': _mask(email.text)}),
           style: const TextStyle(color: Colors.white54, fontSize: 13),
         ),
+        if (isNewUser == true) ...[
+          const SizedBox(height: 8),
+          Text(
+            zh ? '新邮箱验证后将自动注册账号' : 'New email — your account will be created automatically',
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
+          ),
+        ],
+        if (demoCode != null) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF261C15),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: gold.withValues(alpha: 0.45)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: SelectableText(
+                    zh
+                        ? '演示环境未接入邮件服务，验证码：$demoCode'
+                        : 'Demo mode (no SMTP) · Code: $demoCode',
+                    style: const TextStyle(color: gold, fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    code.text = demoCode!;
+                    setState(() => error = null);
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(zh ? '填入' : 'Fill', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
         TextField(
           controller: code,
