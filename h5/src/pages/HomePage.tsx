@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getJson } from "../api";
 import type { Locale } from "../copy";
-import { t, floorName } from "../copy";
+import { dramaTitle, floorName, t } from "../copy";
 import { formatCount } from "../format";
 import { IMG, thumb } from "../img";
 import {
@@ -94,7 +94,7 @@ export function HomePage({ locale, onOpen }: Props) {
           <button className="icon-btn" onClick={() => setGroup(null)}>←</button>
           <h1>{floorName(group.name, locale)}</h1>
         </div>
-        <PosterGrid dramas={group.dramas} onOpen={onOpen} />
+        <PosterGrid dramas={group.dramas} locale={locale} onOpen={onOpen} />
       </div>
     );
   }
@@ -165,12 +165,12 @@ export function HomePage({ locale, onOpen }: Props) {
         <div className="center" style={{ height: "60vh" }}>{t(locale, "empty")}</div>
       ) : selectedTag ? (
         <div className="cat-results">
-          <PosterGrid dramas={filteredDramas} onOpen={onOpen} />
+          <PosterGrid dramas={filteredDramas} locale={locale} onOpen={onOpen} />
         </div>
       ) : discover ? (
         <Discover banners={hero} groups={groups} locale={locale} onOpen={onOpen} onMore={setGroup} />
       ) : bound ? (
-        <PosterGrid dramas={bound.dramas} onOpen={onOpen} />
+        <PosterGrid dramas={bound.dramas} locale={locale} onOpen={onOpen} />
       ) : (
         <div className="center" style={{ height: "50vh" }}>{t(locale, "empty")}</div>
       )}
@@ -323,13 +323,24 @@ function BannerCarousel({ banners, locale, onOpen }: { banners: Banner[]; locale
             <span className="banner-media">
               {banner.cover_url && (
                 <img
-                  src={thumb(banner.cover_url, IMG.banner, 80)}
+                  className="banner-backdrop"
+                  src={thumb(banner.cover_url, IMG.banner, 80, locale)}
                   alt=""
                   loading={index === 0 ? "eager" : "lazy"}
                   decoding="async"
                 />
               )}
             </span>
+            {banner.cover_url && (
+              <div className="banner-poster-showcase" aria-hidden="true">
+                <img
+                  src={thumb(banner.cover_url, IMG.card, 85, locale)}
+                  alt=""
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+              </div>
+            )}
             <div className="banner-copy">
               <div className="banner-badge-row">
                 <span className="chip">
@@ -339,9 +350,9 @@ function BannerCarousel({ banners, locale, onOpen }: { banners: Banner[]; locale
                 <span className="chip chip-free">{t(locale, "free_two_eps")}</span>
                 <span className="chip chip-rule">{t(locale, "short_ep_rule")}</span>
               </div>
-              {banner.kicker && <p className="kicker">{banner.kicker}</p>}
+              {banner.kicker && <p className="kicker">{floorName(banner.kicker, locale)}</p>}
               <div className="banner-title-row">
-                <h2 className="headline">{banner.headline || banner.title || ""}</h2>
+                <h2 className="headline">{dramaTitle(banner.headline || banner.title || "", locale)}</h2>
                 <span className="banner-play-btn" aria-hidden="true">
                   <IconPlaySmall size={14} />
                   <span>{locale === "zh" ? "立即观看" : "Watch"}</span>
@@ -408,13 +419,20 @@ function Floor({
       ) : style === "grid2" ? (
         <LandscapeGrid dramas={group.dramas.slice(0, limit)} badge={group.badge} locale={locale} onOpen={onOpen} />
       ) : (
-        <PosterGrid dramas={group.dramas.slice(0, limit)} badge={group.badge} onOpen={onOpen} />
+        <PosterGrid dramas={group.dramas.slice(0, limit)} badge={group.badge} locale={locale} onOpen={onOpen} />
       )}
     </section>
   );
 }
 
-function PosterGrid({ dramas, onOpen, badge }: { dramas: DramaCard[]; onOpen: (id: number) => void; badge?: string }) {
+function PosterGrid({
+  dramas, onOpen, badge, locale,
+}: {
+  dramas: DramaCard[];
+  onOpen: (id: number) => void;
+  badge?: string;
+  locale: Locale;
+}) {
   if (dramas.length === 0) return null;
   return (
     <div className="grid3">
@@ -425,7 +443,7 @@ function PosterGrid({ dramas, onOpen, badge }: { dramas: DramaCard[]; onOpen: (i
               {drama.cover_url && (
                 <img
                   className="cover"
-                  src={thumb(drama.cover_url, IMG.card)}
+                  src={thumb(drama.cover_url, IMG.card, 75, locale)}
                   alt=""
                   loading="lazy"
                   decoding="async"
@@ -440,7 +458,7 @@ function PosterGrid({ dramas, onOpen, badge }: { dramas: DramaCard[]; onOpen: (i
             )}
             <div className="poster-gradient" />
           </div>
-          <p className="card-title">{drama.title}</p>
+          <p className="card-title">{dramaTitle(drama.title, locale)}</p>
         </button>
       ))}
     </div>
@@ -456,30 +474,32 @@ function LandscapeGrid({
   onOpen: (id: number) => void;
 }) {
   return (
-    <div className="grid2">
+    <div className="new-release-grid">
       {dramas.map((drama) => (
-        <button key={drama.id} className="card" onClick={() => onOpen(drama.id)} type="button">
-          <div className="land">
-            <span className="land-media">
-              {drama.cover_url && (
-                <img
-                  className="cover"
-                  src={thumb(drama.cover_url, IMG.landscape)}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                />
-              )}
-            </span>
+        <button key={drama.id} className="new-release-card" onClick={() => onOpen(drama.id)} type="button">
+          <div className="nr-poster">
+            {drama.cover_url && (
+              <img
+                src={thumb(drama.cover_url, IMG.card, 80, locale)}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+          </div>
+          <div className="nr-info">
             {badge === "label" && (
-              <span className="hot-pill">
+              <span className="nr-hot-badge">
                 <IconFire size={10} />
                 <span>{t(locale, "hot")}</span>
               </span>
             )}
-            <div className="land-gradient" />
+            <strong className="nr-title">{dramaTitle(drama.title, locale)}</strong>
+            <span className="nr-meta">
+              {t(locale, "free_two_eps")}
+              {drama.play_count ? ` · ${formatCount(drama.play_count, locale)}` : ""}
+            </span>
           </div>
-          <p className="card-title">{drama.title}</p>
         </button>
       ))}
     </div>
@@ -517,7 +537,7 @@ function RankList({
               {drama.cover_url && (
                 <img
                   className="cover"
-                  src={thumb(drama.cover_url, IMG.rank)}
+                  src={thumb(drama.cover_url, IMG.rank, 75, locale)}
                   alt=""
                   loading="lazy"
                   decoding="async"
@@ -526,7 +546,7 @@ function RankList({
             </div>
 
             <div className="rank-info-col">
-              <strong className="rank-title">{drama.title}</strong>
+              <strong className="rank-title">{dramaTitle(drama.title, locale)}</strong>
               <div className="rank-meta-row">
                 <span className="rank-tag">
                   {isTop1 ? "TOP 1" : isTop2 ? "TOP 2" : isTop3 ? "TOP 3" : `NO.${index + 1}`}

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getJson, postJson, type UnlockResult } from "../api";
 import { useAuth } from "../auth/AuthProvider";
 import type { Locale } from "../copy";
-import { t } from "../copy";
+import { dramaSynopsis, dramaTitle, t } from "../copy";
 import { formatCount } from "../format";
 import { localizedCover } from "../img";
 import {
@@ -446,13 +446,13 @@ export function PlayPage({ dramaId, locale, onBack, onOpenDrama, onOpenRewards }
             <span className="chip chip-free">{t(locale, "free_two_eps")}</span>
             <span className="chip chip-rule">{t(locale, "short_ep_rule")}</span>
           </div>
-          <h2 className="pa-title">{payload.drama.title}</h2>
+          <h2 className="pa-title">{dramaTitle(payload.drama.title, locale)}</h2>
           {payload.drama.tags.length > 0 && (
             <div className="pa-tags">
               {payload.drama.tags.map((tag) => <span key={tag} className="pa-tag">#{tag}</span>)}
             </div>
           )}
-          {payload.drama.synopsis && <p className="pa-syn">{payload.drama.synopsis}</p>}
+          {payload.drama.synopsis && <p className="pa-syn">{dramaSynopsis(payload.drama.title, payload.drama.synopsis, locale)}</p>}
         </div>
 
         <div className="pa-tabs" role="tablist">
@@ -508,7 +508,7 @@ export function PlayPage({ dramaId, locale, onBack, onOpenDrama, onOpenRewards }
               >
                 {item.cover_url && <img className="pa-rel-cover" src={localizedCover(item.cover_url, locale)} alt="" loading="lazy" />}
                 <div className="pa-rel-info">
-                  <p className="pa-rel-title">{item.title}</p>
+                  <p className="pa-rel-title">{dramaTitle(item.title, locale)}</p>
                   <span className="pa-rel-meta">
                     {t(locale, "free_two_eps")}
                     {item.play_count ? ` · ${formatCount(item.play_count, locale)}` : ""}

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { fetchMarketing, fetchPreviewCatalog, Marketing, Plan, PreviewDrama } from "./api";
 import { ANDROID_APK, ANDROID_MIN } from "./downloads";
 import { SiteFooter, SiteHeader, WEB_APP_URL } from "./layout";
-import { PrefsProvider, usePrefs } from "./prefs";
+import { PrefsProvider, localizeDramaTitle, usePrefs } from "./prefs";
 import PreviewPage from "./preview";
 import { parseRoute, Route, scrollToRoute } from "./routes";
 import { PosterImage, formatPlays } from "./ui";
@@ -280,7 +280,7 @@ function HomePage() {
                       <PosterImage src={drama.cover_url} alt={`${drama.title} cover`} />
                       <span className="poster-overlay">{t("Watch now", "立即观看")}</span>
                     </span>
-                    <span className="poster-title">{drama.title}</span>
+                    <span className="poster-title">{localizeDramaTitle(drama.title, locale)}</span>
                     {drama.play_count > 0 && (
                       <span className="poster-meta">{formatPlays(drama.play_count)} {t("plays", "次播放")}</span>
                     )}

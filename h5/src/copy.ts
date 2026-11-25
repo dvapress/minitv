@@ -563,19 +563,83 @@ const zh: Record<string, string> = {
 
 export type Locale = "en" | "zh";
 
-/** Ops stores floor names in one language; the English UI should not show CJK. */
+/** Ops stores floor names in one language; translate cleanly in both EN and ZH. */
 const FLOOR_EN: Record<string, string> = {
-  新上架: "New Arrivals",
+  新上架: "New Releases",
   本周推荐: "This Week",
   热播: "Trending Now",
-  榜单: "Ranking",
+  榜单: "Hot Ranking",
   猜你喜欢: "For You",
   已完结: "Completed",
 };
 
+const FLOOR_ZH: Record<string, string> = {
+  "Trending Now": "全站热播",
+  "Hot Ranking": "热度排行",
+  "New Releases": "最新上架",
+  "New Arrivals": "最新上架",
+  "This Week": "本周推荐",
+  Ranking: "热度排行",
+  "For You": "猜你喜欢",
+  Completed: "已完结",
+};
+
 export function floorName(name: string, locale: Locale): string {
-  if (locale === "zh") return name;
+  if (locale === "zh") return FLOOR_ZH[name] ?? name;
   return FLOOR_EN[name] ?? name;
+}
+
+const DRAMA_I18N: Record<string, { en: string; synEn: string }> = {
+  "全家听我心声觉醒了，我躺赢": {
+    en: "My Family Hears My Thoughts",
+    synEn: "Reborn with a twist: my whole family can suddenly hear my inner thoughts, dodging every trap on our way to the top.",
+  },
+  "孝子贤孙都跪下，我是你们太奶奶": {
+    en: "Bow Down, Great-Grandma's Back",
+    synEn: "Waking up as the matriarch of a wealthy clan, she puts ungrateful heirs in their place and reclaims the family throne.",
+  },
+  "爹爹开门我带剧本来救全家了": {
+    en: "Open Up, Daddy! I Brought the Script",
+    synEn: "Transmigrated with the full plot in hand, a clever little girl helps her father rewrite their family's fate.",
+  },
+  "穿成三个反派儿子的锦鲤娘": {
+    en: "Lucky Mother of Three Villains",
+    synEn: "Reborn as the mother of three future villains, she uses warmth, wit, and luck to raise them into heroes.",
+  },
+  "穿到八零家属院，老公又红温啦": {
+    en: "Blushing Husband in the 1980s",
+    synEn: "Sent back to a 1980s courtyard, sweet romance meets sharp comebacks as her tough husband blushes every day.",
+  },
+  "选个纨绔当爹，养成皇帝就好了": {
+    en: "Raising My Playboy Dad Into an Emperor",
+    synEn: "A sharp-witted little princess turns her carefree playboy father into a legendary emperor, one scheme at a time.",
+  },
+  "200斤的她绑定系统后美又飒": {
+    en: "Glow-Up System: Bold & Unstoppable",
+    synEn: "With a transformation system unlocked, she leaves ridicule behind and rises in beauty, career, and love.",
+  },
+  "小姑回娘家，带全村炫肉": {
+    en: "Boss Auntie Returns Home",
+    synEn: "A fearless auntie returns home, schools toxic relatives, and leads the whole village to prosperity.",
+  },
+  "白月光反击说明书": {
+    en: "First Love's Revenge Playbook",
+    synEn: "Once gentle and betrayed, the unforgettable first love strikes back with elegance and precision.",
+  },
+  "穿书反派成团宠": {
+    en: "The Villainess Became the Favorite",
+    synEn: "Transmigrated as the hated villainess, she flips the script and wins over everyone's hearts.",
+  },
+};
+
+export function dramaTitle(title: string, locale: Locale): string {
+  if (locale === "zh") return title;
+  return DRAMA_I18N[title]?.en ?? title;
+}
+
+export function dramaSynopsis(title: string, synopsis: string, locale: Locale): string {
+  if (locale === "zh") return synopsis;
+  return DRAMA_I18N[title]?.synEn ?? synopsis;
 }
 
 export function t(locale: Locale, key: string, vars: Record<string, string | number> = {}): string {

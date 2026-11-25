@@ -2811,6 +2811,152 @@ img { display: block; max-width: 100%; }
   border: 1px solid rgba(13, 148, 136, 0.42);
   color: var(--fg);
 }
+/* Move rank badge to top-right so it never overlaps the poster's top-left LEAPDRAMA pill */
+.poster-rank-badge {
+  left: auto !important;
+  right: 8px !important;
+}
+
+/* Split Hero Banner Showcase & Uncropped New Releases Horizontal Cards */
+.banner-poster-showcase { display: none; }
+
+.new-release-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 0 16px;
+}
+.new-release-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-align: left;
+  transition: transform 0.16s ease, border-color 0.16s ease;
+}
+.new-release-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--red);
+}
+.nr-poster {
+  width: 84px;
+  aspect-ratio: 3 / 4;
+  border-radius: 10px;
+  overflow: hidden;
+  flex: none;
+  background: var(--surface-2);
+}
+.nr-poster img { width: 100%; height: 100%; object-fit: cover; }
+.nr-info {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.nr-hot-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.nr-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--fg);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.nr-meta { font-size: 12px; color: var(--muted); }
+
+@media (min-width: 720px) {
+  .new-release-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 0; }
+}
+
+@media (min-width: 960px) {
+  .banner-slide {
+    height: 360px !important;
+    aspect-ratio: auto !important;
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(120deg, #241c18 0%, #3a2216 55%, #16110e 100%);
+  }
+  .banner-media {
+    position: absolute !important;
+    inset: 0 !important;
+    padding-top: 0 !important;
+  }
+  .banner-backdrop {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    filter: blur(34px) brightness(0.42) saturate(1.25);
+    transform: scale(1.18);
+  }
+  .banner-poster-showcase {
+    display: block;
+    position: absolute;
+    right: 76px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 304px;
+    aspect-ratio: 3 / 4;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 22px 54px rgba(0, 0, 0, 0.62);
+    border: 1px solid rgba(253, 248, 246, 0.16);
+    z-index: 3;
+  }
+  .banner-poster-showcase img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .banner-copy {
+    position: absolute !important;
+    left: 64px !important;
+    right: 340px !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%);
+    padding: 0 !important;
+    background: none !important;
+    max-width: 680px;
+    z-index: 4;
+  }
+  .banner-copy .headline {
+    font-size: 34px !important;
+    line-height: 1.2 !important;
+    color: #fdf8f6 !important;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+  }
+  .banner-title-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+  .banner-play-btn {
+    padding: 10px 22px !important;
+    font-size: 14px !important;
+    background: var(--red) !important;
+    color: #fff !important;
+  }
+  .new-release-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .nr-poster { width: 96px; }
+}
+
 :root[data-theme="light"] .auth-input,
 :root[data-theme="light"] .auth-box {
   background: var(--surface-2);
