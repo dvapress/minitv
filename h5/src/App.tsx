@@ -187,7 +187,7 @@ function AppShell() {
             </button>
           ) : (
             <button type="button" className="desktop-signin-btn" onClick={openLogin}>
-              {t(locale, "sign_in")} / {t(locale, "vip_cta")}
+              {t(locale, "sign_in")} / {t(locale, "sign_up")}
             </button>
           )}
         </div>

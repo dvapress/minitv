@@ -63,6 +63,8 @@ function LoginForm({
   onClose: () => void;
   onToken: (token: string) => Promise<void>;
 }) {
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
   const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
   const [digits, setDigits] = useState<string[]>(() => Array.from({ length: CODE_LENGTH }, () => ""));
@@ -183,8 +185,9 @@ function LoginForm({
     setBusy("sending");
     setError(null);
     sendEmailCode(value)
-      .then(() => {
+      .then((res) => {
         setEmail(value);
+        setIsNewUser(res.is_new_user ?? null);
         setDigits(Array.from({ length: CODE_LENGTH }, () => ""));
         setStep("code");
         setCooldown(RESEND_SECONDS);
@@ -223,10 +226,15 @@ function LoginForm({
   return (
     <>
       <button className="sheet-mask auth-mask" onClick={onClose} aria-label={t(locale, "close")} />
-      <div className="sheet auth-sheet" role="dialog" aria-modal="true" aria-label={t(locale, "sign_in")} data-testid="login-sheet">
-        <div className="sheet-handle" />
+      <div className="sheet auth-sheet auth-modal" role="dialog" aria-modal="true" aria-label={t(locale, mode === "register" ? "sign_up" : "sign_in")} data-testid="login-sheet">
         <header className="auth-head">
-          <h3>{step === "email" ? t(locale, "sign_in") : t(locale, "enter_code")}</h3>
+          <h3>
+            {step === "email"
+              ? t(locale, mode === "register" ? "sign_up" : "sign_in")
+              : isNewUser
+              ? t(locale, "new_account_badge")
+              : t(locale, "enter_code")}
+          </h3>
           <button type="button" className="close-btn" onClick={onClose} aria-label={t(locale, "close")}>
             <IconClose size={18} />
           </button>
@@ -235,7 +243,27 @@ function LoginForm({
         <div className="auth-body">
           {step === "email" ? (
             <>
-              <p className="auth-hint">{t(locale, "sign_in_hint")}</p>
+              <div className="auth-mode-tabs" role="tablist">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "login"}
+                  className={mode === "login" ? "auth-mode-tab on" : "auth-mode-tab"}
+                  onClick={() => { setMode("login"); setError(null); }}
+                >
+                  {t(locale, "sign_in")}
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "register"}
+                  className={mode === "register" ? "auth-mode-tab on" : "auth-mode-tab"}
+                  onClick={() => { setMode("register"); setError(null); }}
+                >
+                  {t(locale, "sign_up")}
+                </button>
+              </div>
+              <p className="auth-hint">{t(locale, mode === "register" ? "sign_up_hint" : "sign_in_hint")}</p>
               <label className="auth-label" htmlFor="auth-email">{t(locale, "email_label")}</label>
               <input
                 id="auth-email"
@@ -288,9 +316,27 @@ function LoginForm({
                   {busy === "google" && <p className="auth-hint center-text">{t(locale, "verifying")}</p>}
                 </>
               )}
+              <button
+                type="button"
+                className="auth-switch-link"
+                onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(null); }}
+              >
+                {t(locale, mode === "login" ? "switch_to_register" : "switch_to_login")}
+              </button>
             </>
           ) : (
             <>
+              {isNewUser === true && (
+                <div className="auth-intent-banner is-register" role="status">
+                  <strong>{t(locale, "new_account_badge")}</strong>
+                  <span>{t(locale, "new_account_notice")}</span>
+                </div>
+              )}
+              {isNewUser === false && mode === "register" && (
+                <div className="auth-intent-banner is-existing" role="status">
+                  <span>{t(locale, "existing_account_notice")}</span>
+                </div>
+              )}
               <p className="auth-hint">{t(locale, "code_sent_to", { email: maskEmail(email) })}</p>
               <div className="auth-code">
                 {digits.map((digit, index) => (
@@ -330,7 +376,11 @@ function LoginForm({
                 </button>
               </div>
               <button type="button" className="auth-primary" onClick={verify} disabled={disabled || digits.join("").length !== CODE_LENGTH}>
-                {busy === "verifying" ? t(locale, "verifying") : t(locale, "verify_sign_in")}
+                {busy === "verifying"
+                  ? t(locale, "verifying")
+                  : isNewUser
+                  ? t(locale, "verify_sign_up")
+                  : t(locale, "verify_sign_in")}
               </button>
               <p className="auth-muted center-text auth-foot">{t(locale, "code_expires")}</p>
             </>

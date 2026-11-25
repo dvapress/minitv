@@ -2727,3 +2727,93 @@ img { display: block; max-width: 100%; }
 @media (min-width: 1200px) {
   .grid3 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
+
+/* Centered Floating Auth Modal (Login / Register + New-Email Registration Banner) */
+.auth-mask {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(10, 7, 5, 0.72) !important;
+  backdrop-filter: blur(6px);
+  z-index: 90 !important;
+}
+.auth-modal {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(420px, calc(100vw - 32px)) !important;
+  max-height: calc(100vh - 48px) !important;
+  overflow-y: auto;
+  border-radius: 22px !important;
+  border: 1px solid var(--border) !important;
+  background: var(--sheet) !important;
+  color: var(--fg) !important;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.58) !important;
+  padding: 20px 22px 22px !important;
+  z-index: 91 !important;
+}
+.auth-mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.auth-mode-tab {
+  height: 36px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.auth-mode-tab.on {
+  background: var(--red);
+  color: #fff;
+}
+.auth-switch-link {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+}
+.auth-switch-link:hover { text-decoration: underline; }
+
+.auth-intent-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.auth-intent-banner.is-register {
+  background: rgba(249, 115, 22, 0.14);
+  border: 1px solid rgba(249, 115, 22, 0.45);
+  color: var(--fg);
+}
+.auth-intent-banner.is-register strong {
+  color: var(--red);
+  font-size: 13.5px;
+}
+.auth-intent-banner.is-existing {
+  background: rgba(13, 148, 136, 0.14);
+  border: 1px solid rgba(13, 148, 136, 0.42);
+  color: var(--fg);
+}
+:root[data-theme="light"] .auth-input,
+:root[data-theme="light"] .auth-box {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--fg);
+}

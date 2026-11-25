@@ -270,6 +270,14 @@ const en: Record<string, string> = {
   footer_tagline: "Vertical micro-dramas · PC Web & Mobile H5 · First 2 episodes free",
   region_label: "Region",
   vip_cta: "VIP",
+  sign_up: "Register",
+  sign_up_hint: "Create a LeapDrama account to unlock episodes, claim welcome coins & sync across devices",
+  new_account_badge: "New Account Registration",
+  new_account_notice: "This email is not registered yet. Verifying the code below will create your new LeapDrama account.",
+  existing_account_notice: "This email is already registered. Verifying the code below will sign you in directly.",
+  verify_sign_up: "Verify & Create Account",
+  switch_to_register: "New to LeapDrama? Create an account",
+  switch_to_login: "Already have an account? Sign in",
 };
 
 const zh: Record<string, string> = {
@@ -543,6 +551,14 @@ const zh: Record<string, string> = {
   footer_tagline: "竖屏短剧漫剧发行平台 · PC 网页 & 移动端 H5 · 前 2 集免费试看",
   region_label: "地区",
   vip_cta: "会员",
+  sign_up: "注册",
+  sign_up_hint: "创建 LeapDrama 新账号，领取新人金币、同步收藏与观看进度",
+  new_account_badge: "新邮箱注册",
+  new_account_notice: "该邮箱尚未注册，验证通过后将自动为您创建 LeapDrama 新账号。",
+  existing_account_notice: "该邮箱已注册，验证通过后将直接登录您的已有账号。",
+  verify_sign_up: "验证并完成注册",
+  switch_to_register: "还没有账号？立即注册",
+  switch_to_login: "已有账号？立即登录",
 };
 
 export type Locale = "en" | "zh";

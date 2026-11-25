@@ -191,11 +191,13 @@ def unlock(body: UnlockIn, request: Request, user: User = Depends(_require_user)
 
 @router.post("/auth/email/code")
 def email_code(body: CodeIn, db: Session = Depends(get_db)):
+    normalized = body.email.strip().lower()
+    exists = db.scalar(select(User.id).where(User.email == normalized)) is not None
     try:
         accounts.issue_code(db, email=body.email, purpose=body.purpose)
     except AccountError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
-    return {"sent": True}
+    return {"sent": True, "is_new_user": not exists}
 
 
 @router.get("/auth/providers")

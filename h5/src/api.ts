@@ -140,8 +140,8 @@ export function getAuthProviders(): Promise<AuthProviders> {
   return getJson<AuthProviders>("/v1/auth/providers");
 }
 
-export function sendEmailCode(email: string): Promise<{ sent: boolean }> {
-  return postJson<{ sent: boolean }>("/v1/auth/email/code", { email, purpose: "login" });
+export function sendEmailCode(email: string): Promise<{ sent: boolean; is_new_user?: boolean }> {
+  return postJson<{ sent: boolean; is_new_user?: boolean }>("/v1/auth/email/code", { email, purpose: "login" });
 }
 
 export function authenticateEmail(email: string, code: string): Promise<Session> {
